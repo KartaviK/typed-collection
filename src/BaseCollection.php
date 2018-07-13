@@ -49,7 +49,7 @@ class BaseCollection extends \ArrayObject implements \JsonSerializable, Collecti
 
         if (!is_null($type)) {
             return $type;
-        } else if (!is_null($this->type)) {
+        } elseif (!is_null($this->type)) {
             return $this->type;
         } else {
             throw new NotSetTypeException();
@@ -99,7 +99,7 @@ class BaseCollection extends \ArrayObject implements \JsonSerializable, Collecti
             if (!$object instanceof $type) {
                 throw new InvalidElementException($object, $type);
             }
-        } else if (!is_null($this->type)) {
+        } elseif (!is_null($this->type)) {
             if (!$object instanceof $this->type) {
                 throw new InvalidElementException($object, $this->type);
             }
