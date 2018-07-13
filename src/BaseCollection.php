@@ -95,15 +95,11 @@ class BaseCollection extends \ArrayObject implements \JsonSerializable, Collecti
     {
         $type = static::ELEMENT_TYPE;
 
-        if (!is_null($type)) {
-            if (!$object instanceof $type) {
-                throw new InvalidElementException($object, $type);
-            }
-        } elseif (!is_null($this->type)) {
-            if (!$object instanceof $this->type) {
-                throw new InvalidElementException($object, $this->type);
-            }
-        } else {
+        if (!is_null($type) && !$object instanceof $type) {
+            throw new InvalidElementException($object, $type);
+        } elseif (!is_null($this->type) && !$object instanceof $this->type) {
+            throw new InvalidElementException($object, $this->type);
+        } elseif (is_null($type) && is_null($this->type)) {
             throw new NotSetTypeException();
         }
     }
