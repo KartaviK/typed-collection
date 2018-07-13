@@ -4,3 +4,4 @@
 [![codecov](https://codecov.io/gh/KartaviK/generic-collection-php/branch/master/graph/badge.svg)](https://codecov.io/gh/KartaviK/generic-collection-php)
 
 Realizations of generic collection
+
