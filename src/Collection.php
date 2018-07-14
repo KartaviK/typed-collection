@@ -6,7 +6,7 @@ namespace kartavik\Designer;
  * Class Collection
  * @package kartavik\Designer
  */
-abstract class Collection extends \ArrayObject implements \JsonSerializable, CollectionInterface
+abstract class Collection extends \ArrayObject implements \JsonSerializable
 {
     /** @var string */
     protected $type = null;
