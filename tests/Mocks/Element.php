@@ -3,10 +3,10 @@
 namespace kartavik\Designer\Tests\Mocks;
 
 /**
- * Class ElementMock
+ * Class Element
  * @package kartavik\Designer\Tests\Mocks
  */
-class ElementMock
+class Element
 {
     /** @var int */
     protected $value;
