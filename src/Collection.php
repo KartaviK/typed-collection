@@ -92,6 +92,10 @@ abstract class Collection extends \ArrayObject implements \JsonSerializable, Col
             $arguments = $arguments[0];
         }
 
+        if (!class_exists($name)) {
+            throw new \BadMethodCallException("Class with name {$name} does not exist!");
+        }
+
         return new class($arguments, $name) extends Collection
         {
             public function type(): string

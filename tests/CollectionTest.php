@@ -113,6 +113,14 @@ class BaseCollectionTest extends TestCase
 
         $this->assertEquals(static::INTEGER_228, $collection->offsetGet(0)->getValue());
         $this->assertEquals(static::INTEGER_229, $collection->offsetGet(1)->getValue());
+
+        $collection = Designer\Collection::{Designer\Tests\Mocks\Element::class}([$element, $element]);
+        $this->assertEquals($element, $collection->offsetGet(0));
+        $this->assertEquals($element, $collection->offsetGet(1));
+
+        $this->expectException(\BadMethodCallException::class);
+        $invalidType = 'asd asd';
+        Designer\Collection::{$invalidType}();
     }
 
     public function testInstance(): void
