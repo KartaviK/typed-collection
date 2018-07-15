@@ -33,15 +33,12 @@ class InvalidElementException extends \InvalidArgumentException
         $objectType = get_class($object);
 
         parent::__construct(
-            "Element {$objectType} must be compatible with " . $needType,
+            "Element {$objectType} must be instance of " . $needType,
             $code,
             $previous
         );
     }
 
-    /**
-     * @return mixed
-     */
     public function getObject()
     {
         return $this->object;
