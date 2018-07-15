@@ -1,7 +1,6 @@
 <?php
 
 namespace kartavik\Designer;
-use kartavik\Designer\Tests\Mocks\Element;
 
 /**
  * Class Collection
