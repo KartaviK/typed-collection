@@ -8,14 +8,14 @@ namespace kartavik\Collections\Exceptions;
  */
 class InvalidElementException extends \InvalidArgumentException
 {
-    /** @var object $object */
+    /** @var mixed $object */
     protected $object;
 
     /** @var string */
     protected $needType;
 
     public function __construct(
-        object $object,
+        $object,
         string $needType,
         int $code = 0,
         \Throwable $previous = null
@@ -32,7 +32,7 @@ class InvalidElementException extends \InvalidArgumentException
         );
     }
 
-    public function getObject(): object
+    public function getObject()
     {
         return $this->object;
     }
