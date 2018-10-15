@@ -1,8 +1,8 @@
 <?php
 
-namespace kartavik\Designer\Tests;
+namespace kartavik\Collections\Tests;
 
-use kartavik\Designer;
+use kartavik\Collections;
 
 use PHPUnit\Framework\TestCase;
 
@@ -17,12 +17,12 @@ class BaseCollectionTest extends TestCase
     public const SECOND_TEST_NUMBER = 228;
     public const THIRD_TEST_NUMBER = 229;
 
-    /** @var Designer\Collection */
+    /** @var Collections\Collection */
     protected $collection;
 
     protected function setUp(): void
     {
-        $this->collection = new class extends Designer\Collection
+        $this->collection = new class extends Collections\Collection
         {
             public function __construct(
                 array $elements = [],
@@ -41,7 +41,7 @@ class BaseCollectionTest extends TestCase
 
     public function testInstanceWithInvalidArgument(): void
     {
-        $this->expectException(Designer\InvalidElementException::class);
+        $this->expectException(Collections\Exceptions\InvalidElementException::class);
 
         new $this->collection([
             new class
@@ -71,7 +71,7 @@ class BaseCollectionTest extends TestCase
         };
         $elementClassName = get_class($element);
 
-        $this->expectException(Designer\InvalidElementException::class);
+        $this->expectException(Collections\Exceptions\InvalidElementException::class);
         $this->expectExceptionMessage(
             "Element {$elementClassName} must be instance of " . Mocks\Element::class
         );
@@ -91,7 +91,7 @@ class BaseCollectionTest extends TestCase
 
         $this->testAppends();
 
-        $element = new Mocks\Element(static::SECOND_TEST_NUMBER);
+        $element = new Collections\Tests\Mocks\Element(static::SECOND_TEST_NUMBER);
         $this->collection[] = $element;
 
         $this->assertEquals(4, count($this->collection));
@@ -100,10 +100,10 @@ class BaseCollectionTest extends TestCase
 
     public function testStatic(): void
     {
-        $element = new Mocks\Element(static::SECOND_TEST_NUMBER);
+        $element = new Collections\Tests\Mocks\Element(static::SECOND_TEST_NUMBER);
 
-        /** @var Designer\Collection $collection */
-        $collection = Designer\Collection::{Mocks\Element::class}($element);
+        /** @var Collections\Collection $collection */
+        $collection = Collections\Collection::{Mocks\Element::class}($element);
 
         $this->assertEquals(Mocks\Element::class, $collection->type());
 
@@ -112,13 +112,22 @@ class BaseCollectionTest extends TestCase
         $this->assertEquals(static::SECOND_TEST_NUMBER, $collection->offsetGet(0)->getValue());
         $this->assertEquals(static::THIRD_TEST_NUMBER, $collection->offsetGet(1)->getValue());
 
-        $collection = Designer\Collection::{Mocks\Element::class}([$element, $element]);
+        $collection = Collections\Collection::{Mocks\Element::class}([$element, $element]);
         $this->assertEquals($element, $collection->offsetGet(0));
         $this->assertEquals($element, $collection->offsetGet(1));
 
         $this->expectException(\BadMethodCallException::class);
         $invalidType = 'asd asd';
-        Designer\Collection::{$invalidType}();
+        Collections\Collection::{$invalidType}();
+    }
+
+    public function testTypeOfCollection(): void
+    {
+        /** @var Collections\Collection $collection */
+        $collection = Collections\Collection::{\Exception::class}();
+
+        $this->assertEquals(\Exception::class, $collection->type());
+        $this->assertEquals(Collections\Collection::class, get_class($collection));
     }
 
     public function testInstance(): void
@@ -134,8 +143,8 @@ class BaseCollectionTest extends TestCase
         $firstSubElement = new Mocks\SubElement(static::FIRST_TEST_NUMBER);
         $secondSubElement = new Mocks\SubElement(static::SECOND_TEST_NUMBER);
 
-        /** @var Designer\Collection $collection */
-        $collection = Designer\Collection::{Mocks\Element::class}([
+        /** @var Collections\Collection $collection */
+        $collection = Collections\Collection::{Mocks\Element::class}([
             new Mocks\Element(static::FIRST_TEST_NUMBER, $firstSubElement),
             new Mocks\Element(static::SECOND_TEST_NUMBER, $secondSubElement)
         ]);
@@ -159,8 +168,8 @@ class BaseCollectionTest extends TestCase
             new Mocks\Element(static::THIRD_TEST_NUMBER)
         ];
 
-        /** @var Designer\Collection $collection */
-        $collection = Designer\Collection::{Mocks\Element::class}($elements);
+        /** @var Collections\Collection $collection */
+        $collection = Collections\Collection::{Mocks\Element::class}($elements);
 
         $chunked = $collection->chunk(2);
 
@@ -201,8 +210,8 @@ class BaseCollectionTest extends TestCase
             )
         ];
 
-        /** @var Designer\Collection $collection */
-        $collection = Designer\Collection::{Mocks\Element::class}($elements);
+        /** @var Collections\Collection $collection */
+        $collection = Collections\Collection::{Mocks\Element::class}($elements);
 
         $column = $collection->column('getSubElement');
 
@@ -238,8 +247,8 @@ class BaseCollectionTest extends TestCase
             $elementToPop
         ];
 
-        /** @var Designer\Collection $collection */
-        $collection = Designer\Collection::{Mocks\Element::class}($elements);
+        /** @var Collections\Collection $collection */
+        $collection = Collections\Collection::{Mocks\Element::class}($elements);
 
         $this->assertEquals(count($elements), $collection->count());
 
@@ -264,8 +273,8 @@ class BaseCollectionTest extends TestCase
             new Mocks\Element(static::THIRD_TEST_NUMBER)
         ];
 
-        /** @var Designer\Collection $collection */
-        $collection = Designer\Collection::{Mocks\Element::class}($elements);
+        /** @var Collections\Collection $collection */
+        $collection = Collections\Collection::{Mocks\Element::class}($elements);
 
         $sum = $collection->sum(function (Mocks\Element $item) {
             return $item->getValue();

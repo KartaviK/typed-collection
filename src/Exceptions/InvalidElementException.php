@@ -1,28 +1,21 @@
 <?php
 
-namespace kartavik\Designer;
+namespace kartavik\Collections\Exceptions;
 
 /**
  * Class InvalidElementException
- * @package kartavik\Designer
+ * @package kartavik\Collections\Exceptions
  */
 class InvalidElementException extends \InvalidArgumentException
 {
+    /** @var object $object */
     protected $object;
 
     /** @var string */
     protected $needType;
 
-    /**
-     * InvalidElementException constructor.
-     *
-     * @param                 $object
-     * @param string          $needType
-     * @param int             $code
-     * @param \Throwable|null $previous
-     */
     public function __construct(
-        $object,
+        object $object,
         string $needType,
         int $code = 0,
         \Throwable $previous = null
@@ -39,7 +32,7 @@ class InvalidElementException extends \InvalidArgumentException
         );
     }
 
-    public function getObject()
+    public function getObject(): object
     {
         return $this->object;
     }

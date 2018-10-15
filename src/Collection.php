@@ -1,24 +1,18 @@
 <?php
 
-namespace kartavik\Designer;
+namespace kartavik\Collections;
+
+use kartavik\Collections\Exceptions\InvalidElementException;
 
 /**
  * Class Collection
- * @package kartavik\Designer
+ * @package kartavik\Collections
  */
 class Collection extends \ArrayObject implements \JsonSerializable
 {
     /** @var string */
     protected $type = null;
 
-    /**
-     * Collection constructor.
-     *
-     * @param array  $elements
-     * @param string $type
-     * @param int    $flags
-     * @param string $iteratorClass
-     */
     protected function __construct(
         array $elements = [],
         string $type = null,
@@ -115,33 +109,34 @@ class Collection extends \ArrayObject implements \JsonSerializable
         return $collection;
     }
 
-    public function column(string $getter, callable $function = null): Collection
+    public function column(string $property, callable $function = null): Collection
     {
-        $getterType = get_class($this->offsetGet(0)->{$getter}());
+        $getterType = get_class($this->offsetGet(0)->{$property}());
 
         if (!is_null($function)) {
             /** @var Collection $collection */
             $collection = Collection::{$getterType}();
 
             foreach ($this->jsonSerialize() as $item) {
-                $collection->append(call_user_func($function, $item->{$getter}()));
+                $collection->append(call_user_func($function, $item->{$property}()));
             }
 
             return $collection;
         } else {
             return Collection::{$getterType}(array_map(
-                function ($item) use ($getter) {
-                    return $item->{$getter}();
+                function ($item) use ($property) {
+                    return $item->{$property}();
                 },
                 $this->jsonSerialize()
             ));
         }
     }
 
-    public function pop()
+    public function pop(): object
     {
-        $element = $this->offsetGet($this->count() - 1);
-        $this->offsetUnset($this->count() - 1);
+        $last = $this->count() - 1;
+        $element = $this->offsetGet($last);
+        $this->offsetUnset($last);
 
         return $element;
     }
@@ -158,12 +153,12 @@ class Collection extends \ArrayObject implements \JsonSerializable
     }
 
     /**
-     * @param $name
-     * @param $arguments
+     * @param string $name
+     * @param array $arguments
      *
      * @return Collection
      */
-    public static function __callStatic($name, $arguments)
+    public static function __callStatic(string $name, array $arguments)
     {
         if (!empty($arguments) && is_array($arguments[0])) {
             $arguments = $arguments[0];

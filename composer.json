@@ -22,12 +22,12 @@
     "require": {},
     "autoload": {
         "psr-4": {
-            "kartavik\\Designer\\": "src/"
+            "kartavik\\Collections\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "kartavik\\Designer\\Tests\\": "tests/"
+            "kartavik\\Collections\\Tests\\": "tests/"
         }
     },
     "config": {

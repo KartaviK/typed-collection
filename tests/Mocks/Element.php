@@ -1,10 +1,10 @@
 <?php
 
-namespace kartavik\Designer\Tests\Mocks;
+namespace kartavik\Collections\Tests\Mocks;
 
 /**
  * Class Element
- * @package kartavik\Designer\Tests\Mocks
+ * @package kartavik\Collections\Tests\Mocks
  */
 class Element
 {
