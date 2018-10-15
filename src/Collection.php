@@ -13,9 +13,9 @@ class Collection extends \ArrayObject implements \JsonSerializable
     /** @var string */
     protected $type = null;
 
-    protected function __construct(
+    public function __construct(
+        string $type,
         array $elements = [],
-        string $type = null,
         int $flags = 0,
         string $iteratorClass = \ArrayIterator::class
     ) {
@@ -168,6 +168,6 @@ class Collection extends \ArrayObject implements \JsonSerializable
             throw new \BadMethodCallException("Class with name {$name} does not exist!");
         }
 
-        return new static($arguments, $name);
+        return new static($name, $arguments);
     }
 }

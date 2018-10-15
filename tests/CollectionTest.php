@@ -29,7 +29,7 @@ class BaseCollectionTest extends TestCase
                 int $flags = 0,
                 string $iteratorClass = \ArrayIterator::class
             ) {
-                parent::__construct($elements, $this->type(), $flags, $iteratorClass);
+                parent::__construct($this->type(), $elements, $flags, $iteratorClass);
             }
 
             public function type(): string
