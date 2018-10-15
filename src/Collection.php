@@ -132,7 +132,7 @@ class Collection extends \ArrayObject implements \JsonSerializable
         }
     }
 
-    public function pop(): object
+    public function pop()
     {
         $last = $this->count() - 1;
         $element = $this->offsetGet($last);
