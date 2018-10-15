@@ -7,157 +7,211 @@
 [![codecov](https://codecov.io/gh/KartaviK/generic-collection-php/branch/master/graph/badge.svg)](https://codecov.io/gh/KartaviK/generic-collection-php)
 [![License](https://poser.pugx.org/kartavik/generic-collection-php/license)](https://github.com/KartaviK/generic-collection-php/blob/master/LICENSE)
 
-I tried to implement a strongly typed generic collection as similar to List<T> in C#
+Strongly typed generic collection implementation
 
-`new List<Product>()` will similar to `Collection::{Product::class}()`
+## Installation
+
+Use [composer](https://getcomposer.org/) to install:
+
+```bash
+composer require kartavik/generic-collection-php
+```
 
 ## Usage
 
-For examples will use next classes:
+For all examples we will use this mock:
 
-**Product.php**
 ```php
 <?php
 
-class Product
+class User
 {
-    /** @var Name */
+    /** @var string */
     protected $name;
     
-    /** @var Barcode */
-    protected $barcode;
+    /** @var int */
+    protected $age;
     
-    public function __construct(Name $name, Barcode $barcode) 
+    public function __construct(string $name, int $age)
     {
         $this->name = $name;
-        $this->barcode = $barcode;
+        $this->age = $age;
     }
     
-    public function getName(): Name
+    public function getName(): string
     {
         return $this->name;
     }
     
-    public function getBarcode(): Barcode
+    public function getAge(): int
     {
-        return $this->barcode;
+        return $this->age;
     }
 }
+
 ```
 
-**Name.php**:
+### Constructor
+
+#### Instantiate empty collection:
 ```php
 <?php
 
-class Name
-{
-    /** @var string */
-    protected $value;
-    
-    public function __construct(string $value)
-    {
-        $this->value = $value;
-    }
-    
-    public function getValue(): string
-    {
-        return $this->value;
-    }
-    
-    public function __toString(): string
-    {
-        return $this->value;
-    }
-}
+use kartavik\Collections\Collection;
+
+$collection = new Collection(User::class);
+
+print_r($collection);
+```
+Output:
+```text
+kartavik\Collections\Collection Object
+(
+    [type:kartavik\Collections\Collection:private] => kartavik\Collections\Tests\Mocks\Element
+    [container:protected] => Array
+    (
+    )
+)
 ```
 
-**Barcode.php**:
+#### Instantiate with array:
 ```php
 <?php
 
-class Barcode
-{
-    /** @var int */
-    protected $value;
-    
-    public function __construct(int $value) 
-    {
-        $this->value = $value;
-    }
-    
-    public function getValue(): int
-    {
-        return $this->value;
-    }
-    
-    public function __toString(): string
-    {
-        return (string)$this->value;
-    }
-}
+use kartavik\Collections\Collection;
+
+$users = [
+    new User('Roman', 17),
+    new User('Dima', 22),
+];
+
+$collection = new Collection(User::class, $users);
 ```
 
-Now you can create own php file with class
-that will implement collection with extending our abstract collection;
+#### Instantiate with another collection:
+```php
+<?php
 
-OR
+use kartavik\Collections\Collection;
 
-You can create collection anonymously without implementing file;
+$users = [
+    new User('Roman', 17),
+    new User('Dima', 22),
+];
+
+$subCollection = new Collection(User::class, $users);
+$collection = new Collection(User::class, $subCollection);
+```
+
+#### Instantiate with unbounded arrays:
+```php
+<?php
+
+use kartavik\Collections\Collection;
+
+$users[0] = [new User('Roman', 17), new User('Denis', 43),];
+$users[1] = [new User('Vadim', 24),];
+$users[2] = [new User('Jho', 12), new User('Anna', 33), new User('Cabo', 25),];
+$users[3] = [new User('Ruby', 11),];
+$users[4] = [new User('Venom', 45), new User('Dima', 64), new User('Many', 52)];
+
+$collection = new Collection(
+    User::class,
+    $users[0],
+    $users[1],
+    $users[2],
+    $users[3],
+    $users[4]
+);
+```
+
+#### Instantiate with unbounded collections:
+```php
+<?php
+
+use kartavik\Collections\Collection;
+
+$collection[0] = new Collection(User::class, [new User('Roman', 17), new User('Denis', 43),]);
+$collection[1] = new Collection(User::class, [new User('Vadim', 24),]);
+$collection[2] = new Collection(User::class, [new User('Jho', 12), new User('Anna', 33), new User('Cabo', 25),]);
+$collection[3] = new Collection(User::class, [new User('Ruby', 11),]);
+$collection[4] = new Collection(User::class, [new User('Venom', 45), new User('Dima', 64), new User('Many', 52)]);
+
+$collection = new Collection(
+    User::class, 
+    $collection[0], 
+    $collection[1], 
+    $collection[2],
+    $collection[3], 
+    $collection[4]
+);
+```
+
+#### Instantiate with combined iterable objects
+```php
+<?php
+
+use kartavik\Collections\Collection;
+
+$array = [new User('Roman', 17), new User('Denis', 43),];
+$collection = $collection[1] = new Collection(User::class, [new User('Vadim', 24),]);
+$iterable = 'any iterable object';
+
+$collection = new Collection(User::class, $array, $collection, $iterable);
+```
 
 ### Use extendibility
 
-**ProductCollection.php**:
+**UserCollection.php**:
 ```php
 <?php
 
-use kartavik\Designer\Collection;
+use kartavik\Collections\Collection;
 
-class ProductCollection extends Collection
+class UserCollection extends Collection
 {
-    // auto-generated constructor
-    public function __construct(
-        array $elements = [],
-        int $flags = 0,
-        string $iteratorClass = \ArrayIterator::class
-    ) {
-        parent::__construct($elements, $this->type(), $flags, $iteratorClass);
+    // your properties, constants, traits
+    
+    public function __construct(array ...$iterable)
+    {
+        parent::__construct(User::class, ...$iterable);
     }
     
-    public function type(): string 
-    {
-         return Product::class;
-    }
+    // your methods
 }
 ```
 
-And than we can create instance:
+And just create instance:
 
 ```php
 <?php
 
-$products = [
-    new Product(new Name('Apple'), new Barcode(123123)),
-    new Product(new Name('Orange'), new Barcode(321321)),
+use UserCollection;
+
+$users = [
+    new User('Roman', 17),
+    new User('Denis', 43),
 ];
 
-$collection = new ProductCollection($products);
+$collection = new UserCollection($users);
 ```
 
-### Use anonymously
+### Use static (beta)
 
-You can create instance without class that implements your collection
+You can create instance without class that implements your collection.
 
+This implementation of static call method works with constructor
 ```php
 <?php
 
-use kartavik\Designer\Collection;
+use kartavik\Collections\Collection;
 
-$barcodes = [
-    new Barcode(123132),
-    new Barcode(321321),
+$users = [
+    new User('Roman', 17),
+    new User('Denis', 43),
 ];
 
-$collection = Collection::{Barcode::class}($barcodes);
+$collection = Collection::{User::class}($users);
 ```
 
 ## Where is strong type?
@@ -170,74 +224,21 @@ you will get `InvalidElementException()`
 
 **Important!** this collection is only for `class` objects
 
-## Functions
+## Methods
 
-#### **map()**
+### map
 
 signature:
-`map(callable $function, Collection ...$collection): Collection`
+`Collection map(callable $function, Collection ...$collection)`
 
-usage example:
-```php
-<?php
-
-$products = [
-    new Product(new Name('Apple'), new Barcode(123123)),
-    new Product(new Name('Orange'), new Barcode(321321)),
-];
-
-$collection = Collection::{Product::class}($products);
-
-$names = $collection->map(function (Product $product): Name {
-    return $product->getName();
-});
-
-/*
- *   out is something like:
- * 
- *   class@anonymous {
- *       [0] => Name {},
- *       [1] => Name {}
- *   }
- *   
- *   this collection also instance of Collection
- */
-```
-
-#### **chunk()**
+### chunk
 
 signature: 
-`chunk(int $size): Collection`
+`Collection chunk(int $size)`
 
-usage example:
-```php
-<?php
+## Contributors:
+- [Roman <KartaviK> Varkuta](mailto:roman.varkuta@gmail.com)
 
-$products = [
-    new Product(new Name('Apple'), new Barcode(1)),
-    new Product(new Name('Orange'), new Barcode(2)),
-    new Product(new Name('Car'), new Barcode(3)),
-    new Product(new Name('Pan'), new Barcode(4)),
-];
+## License
 
-$collection = Collection::{Product::class}($products);
-
-$chunked = $collection->chunk(2);
-
-/*
- * out will be:
- * 
- * class@anonymous {
- *      [0] => class@anonymous {
- *          [0] => Product { protected $name = Name { protected $value = 'Apple' } ... },
- *          [1] => Product { ... }
- *      },
- *      [1] => class@anonymous {
- *          [0] => Product { ...},
- *          [1] => Product { protected $name = Name { protected $value = 'Pan' } }
- *      }
- * }
- * 
- * Also each anonymous class is instance of Collection
- */
-```
+[MIT](./LICENSE)

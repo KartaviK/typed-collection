@@ -8,41 +8,59 @@ use kartavik\Collections\Exceptions\InvalidElementException;
  * Class Collection
  * @package kartavik\Collections
  */
-class Collection extends \ArrayObject implements \JsonSerializable
+class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
 {
     /** @var string */
-    protected $type = null;
+    private $type = null;
 
-    public function __construct(
-        string $type,
-        array $elements = [],
-        int $flags = 0,
-        string $iteratorClass = \ArrayIterator::class
-    ) {
+    /** @var array */
+    protected $container = [];
+
+    public function __construct(string $type, iterable ...$iterables)
+    {
         $this->type = $type;
 
-        foreach ($elements as $element) {
-            $this->instanceOfType($element);
+        foreach ($iterables as $iterable) {
+            foreach ($iterable as $item) {
+                $this->add($item);
+            }
         }
-
-        parent::__construct($elements, $flags, $iteratorClass);
     }
 
-    public function type(): string
+    final public function type(): string
     {
         return $this->type;
     }
 
-    /**
-     * @param mixed $value
-     *
-     * @throws InvalidElementException
-     */
-    public function append($value): void
+    public function offsetExists($offset): bool
     {
-        $this->instanceOfType($value);
+        return array_key_exists($offset, $this->container);
+    }
 
-        parent::append($value);
+    public function offsetGet($offset)
+    {
+        return $this->container[$offset];
+    }
+
+    public function offsetUnset($offset): void
+    {
+        if ($this->offsetExists($offset)) {
+            unset($this->container[$offset]);
+        }
+    }
+
+    public function getIterator(): \ArrayIterator
+    {
+        return new \ArrayIterator($this->container);
+    }
+
+    public function append(): void
+    {
+        $values = func_get_args();
+
+        foreach ($values as $item) {
+            $this->add($item);
+        }
     }
 
     /**
@@ -53,14 +71,41 @@ class Collection extends \ArrayObject implements \JsonSerializable
      */
     public function offsetSet($index, $value): void
     {
-        $this->instanceOfType($value);
-
-        parent::offsetSet($index, $value);
+        $this->add($value, $index);
     }
 
     public function jsonSerialize(): array
     {
-        return (array)$this;
+        return $this->container;
+    }
+
+    public function isCompatible($element): bool
+    {
+        try {
+            if ($element instanceof self) {
+                return true;
+            } elseif (is_array($element)) {
+                foreach ($element as $item) {
+                    try {
+                        $this->validate($item);
+                    } catch (InvalidElementException $ex) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        } catch (\InvalidArgumentException $exception) {
+        } finally {
+            return false;
+        }
+    }
+
+    public function first()
+    {
+        reset($this->container);
+
+        return $this->container[key($this->container)];
     }
 
     /**
@@ -68,7 +113,7 @@ class Collection extends \ArrayObject implements \JsonSerializable
      *
      * @throws InvalidElementException
      */
-    public function instanceOfType($object): void
+    public function validate($object): void
     {
         $type = $this->type();
 
@@ -77,18 +122,21 @@ class Collection extends \ArrayObject implements \JsonSerializable
         }
     }
 
-    public function map(callable $function, Collection ...$arrays): Collection
+    public function map(callable $callback): Collection
     {
-        $mappedType = get_class(call_user_func(
-            $function,
-            $this->offsetGet(0)
+        $type = get_class(call_user_func(
+            $callback,
+            $this->first()
         ));
 
-        return Collection::{$mappedType}(array_map(
-            $function,
-            $this->jsonSerialize(),
-            $arrays
-        ));
+        $elements = array_map($callback, $this->container, array_keys($this->container));
+
+        return Collection::{$type}($elements);
+    }
+
+    public function walk(callable $function): bool
+    {
+        return array_walk($this->container, $function);
     }
 
     public function chunk(int $size): Collection
@@ -111,21 +159,21 @@ class Collection extends \ArrayObject implements \JsonSerializable
 
     public function column(string $property, callable $function = null): Collection
     {
-        $getterType = get_class($this->offsetGet(0)->{$property}());
+        $getterType = get_class($this->offsetGet(0)->$property);
 
         if (!is_null($function)) {
             /** @var Collection $collection */
             $collection = Collection::{$getterType}();
 
             foreach ($this->jsonSerialize() as $item) {
-                $collection->append(call_user_func($function, $item->{$property}()));
+                $collection->append(call_user_func($function, $item->$property));
             }
 
             return $collection;
         } else {
             return Collection::{$getterType}(array_map(
                 function ($item) use ($property) {
-                    return $item->{$property}();
+                    return $item->$property;
                 },
                 $this->jsonSerialize()
             ));
@@ -134,11 +182,7 @@ class Collection extends \ArrayObject implements \JsonSerializable
 
     public function pop()
     {
-        $last = $this->count() - 1;
-        $element = $this->offsetGet($last);
-        $this->offsetUnset($last);
-
-        return $element;
+        return array_pop($this->container);
     }
 
     public function sum(callable $function)
@@ -154,11 +198,11 @@ class Collection extends \ArrayObject implements \JsonSerializable
 
     /**
      * @param string $name
-     * @param array $arguments
+     * @param array  $arguments
      *
      * @return Collection
      */
-    public static function __callStatic(string $name, array $arguments)
+    public static function __callStatic(string $name, array $arguments = [])
     {
         if (!empty($arguments) && is_array($arguments[0])) {
             $arguments = $arguments[0];
@@ -168,6 +212,23 @@ class Collection extends \ArrayObject implements \JsonSerializable
             throw new \BadMethodCallException("Class with name {$name} does not exist!");
         }
 
-        return new static($name, $arguments);
+        reset($arguments);
+
+        if (current($arguments) instanceof Collection) {
+            return new static($name, ...$arguments);
+        } else {
+            return new static($name, $arguments);
+        }
+    }
+
+    public function count(): int
+    {
+        return count($this->container);
+    }
+
+    public function add($item, $index = null): void
+    {
+        $this->validate($item);
+        $this->container[$index ?? $this->count()] = $item;
     }
 }

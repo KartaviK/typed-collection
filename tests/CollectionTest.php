@@ -123,18 +123,26 @@ class BaseCollectionTest extends TestCase
         $firstSubElement = new Mocks\SubElement(static::FIRST_TEST_NUMBER);
         $secondSubElement = new Mocks\SubElement(static::SECOND_TEST_NUMBER);
 
-        /** @var Collections\Collection $collection */
-        $collection = Collections\Collection::{Mocks\Element::class}([
+        /** @var Collections\Collection $firstCollection */
+        $firstCollection = Collections\Collection::{Mocks\Element::class}([
+            new Mocks\Element(static::FIRST_TEST_NUMBER, $firstSubElement),
+            new Mocks\Element(static::SECOND_TEST_NUMBER, $secondSubElement)
+        ]);
+        $secondCollection = Collections\Collection::{Mocks\Element::class}([
             new Mocks\Element(static::FIRST_TEST_NUMBER, $firstSubElement),
             new Mocks\Element(static::SECOND_TEST_NUMBER, $secondSubElement)
         ]);
 
-        $mapped = $collection->map(function (Mocks\Element $element): Mocks\SubElement {
+        $mapped = $firstCollection->map(function (Mocks\Element $element): Mocks\SubElement {
             return $element->getSubElement();
-        });
+        }, $secondCollection);
+
+        var_dump($mapped);
 
         $this->assertEquals($firstSubElement, $mapped->offsetGet(0));
         $this->assertEquals($secondSubElement, $mapped->offsetGet(1));
+        $this->assertEquals($firstSubElement, $mapped->offsetGet(2));
+        $this->assertEquals($secondSubElement, $mapped->offsetGet(3));
     }
 
     public function testChunk(): void
