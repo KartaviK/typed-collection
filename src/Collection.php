@@ -6,7 +6,7 @@ namespace kartavik\Designer;
  * Class Collection
  * @package kartavik\Designer
  */
-abstract class Collection extends \ArrayObject implements \JsonSerializable
+class Collection extends \ArrayObject implements \JsonSerializable
 {
     /** @var string */
     protected $type = null;
@@ -19,7 +19,7 @@ abstract class Collection extends \ArrayObject implements \JsonSerializable
      * @param int    $flags
      * @param string $iteratorClass
      */
-    public function __construct(
+    protected function __construct(
         array $elements = [],
         string $type = null,
         int $flags = 0,
@@ -34,7 +34,10 @@ abstract class Collection extends \ArrayObject implements \JsonSerializable
         parent::__construct($elements, $flags, $iteratorClass);
     }
 
-    abstract public function type(): string;
+    public function type(): string
+    {
+        return $this->type;
+    }
 
     /**
      * @param mixed $value
@@ -96,12 +99,6 @@ abstract class Collection extends \ArrayObject implements \JsonSerializable
             throw new \BadMethodCallException("Class with name {$name} does not exist!");
         }
 
-        return new class($arguments, $name) extends Collection
-        {
-            public function type(): string
-            {
-                return $this->type;
-            }
-        };
+        return new static($arguments, $name);
     }
 }
