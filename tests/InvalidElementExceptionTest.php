@@ -2,8 +2,8 @@
 
 namespace kartavik\Designer\Tests;
 
-use kartavik\Designer\InvalidElementException;
-use kartavik\Designer\Tests\Mocks\Element;
+use kartavik\Designer;
+
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  */
 class InvalidElementExceptionTest extends TestCase
 {
-    /** @var InvalidElementException */
+    /** @var Designer\InvalidElementException */
     protected $exception;
     protected $object;
     protected $needType;
@@ -21,12 +21,12 @@ class InvalidElementExceptionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->object = new Element(1);
+        $this->object = new Designer\Tests\Mocks\Element(1);
         $this->needType = get_class(new class
         {
 
         });
-        $this->exception = new InvalidElementException($this->object, $this->needType);
+        $this->exception = new Designer\InvalidElementException($this->object, $this->needType);
     }
 
     public function testGetNeedType()

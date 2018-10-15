@@ -83,6 +83,80 @@ class Collection extends \ArrayObject implements \JsonSerializable
         }
     }
 
+    public function map(callable $function, Collection ...$arrays): Collection
+    {
+        $mappedType = get_class(call_user_func(
+            $function,
+            $this->offsetGet(0)
+        ));
+
+        return Collection::{$mappedType}(array_map(
+            $function,
+            $this->jsonSerialize(),
+            $arrays
+        ));
+    }
+
+    public function chunk(int $size): Collection
+    {
+        $mappedType = get_class($this->offsetGet(0));
+        /** @var Collection $collection */
+        $collection = Collection::{Collection::class}();
+        $chunked = array_chunk($this->jsonSerialize(), $size);
+
+        foreach ($chunked as $index => $chunk) {
+            $collection->append(Collection::{$mappedType}());
+
+            foreach ($chunk as $item) {
+                $collection[$index]->append($item);
+            }
+        }
+
+        return $collection;
+    }
+
+    public function column(string $getter, callable $function = null): Collection
+    {
+        $getterType = get_class($this->offsetGet(0)->{$getter}());
+
+        if (!is_null($function)) {
+            /** @var Collection $collection */
+            $collection = Collection::{$getterType}();
+
+            foreach ($this->jsonSerialize() as $item) {
+                $collection->append(call_user_func($function, $item->{$getter}()));
+            }
+
+            return $collection;
+        } else {
+            return Collection::{$getterType}(array_map(
+                function ($item) use ($getter) {
+                    return $item->{$getter}();
+                },
+                $this->jsonSerialize()
+            ));
+        }
+    }
+
+    public function pop()
+    {
+        $element = $this->offsetGet($this->count() - 1);
+        $this->offsetUnset($this->count() - 1);
+
+        return $element;
+    }
+
+    public function sum(callable $function)
+    {
+        $sum = 0;
+
+        foreach ($this as $element) {
+            $sum += call_user_func($function, $element);
+        }
+
+        return $sum;
+    }
+
     /**
      * @param $name
      * @param $arguments
