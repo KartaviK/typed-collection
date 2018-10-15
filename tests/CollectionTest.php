@@ -3,13 +3,13 @@
 namespace kartavik\Collections\Tests;
 
 use kartavik\Collections;
-
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class BaseCollectionTest
- * @internal
  * @package kartavik\Designer\Tests
+ * @coversDefaultClass \kartavik\Collections\Collection
+ * @internal
  */
 class BaseCollectionTest extends TestCase
 {
@@ -20,43 +20,19 @@ class BaseCollectionTest extends TestCase
     /** @var Collections\Collection */
     protected $collection;
 
-    protected function setUp(): void
-    {
-        $this->collection = new class extends Collections\Collection
-        {
-            public function __construct(
-                array $elements = [],
-                int $flags = 0,
-                string $iteratorClass = \ArrayIterator::class
-            ) {
-                parent::__construct($this->type(), $elements, $flags, $iteratorClass);
-            }
-
-            public function type(): string
-            {
-                return Mocks\Element::class;
-            }
-        };
-    }
-
     public function testInstanceWithInvalidArgument(): void
     {
         $this->expectException(Collections\Exceptions\InvalidElementException::class);
 
-        new $this->collection([
-            new class
-            {
-            }
-        ]);
+        Collections\Collection::{\Exception::class}([new Mocks\Element(mt_rand()),]);
     }
 
-    public function testAppends(): void
+    public function testCorrectAppends(): void
     {
-        /** @noinspection PhpUnhandledExceptionInspection */
+        $this->collection = Collections\Collection::{Mocks\Element::class}();
+
         $this->collection->append(new Mocks\Element(static::FIRST_TEST_NUMBER));
-        /** @noinspection PhpUnhandledExceptionInspection */
         $this->collection->append(new Mocks\Element(static::SECOND_TEST_NUMBER));
-        /** @noinspection PhpUnhandledExceptionInspection */
         $this->collection->append(new Mocks\Element(static::THIRD_TEST_NUMBER));
 
         $this->assertEquals($this->collection->offsetGet(0)->getValue(), static::FIRST_TEST_NUMBER);
@@ -64,32 +40,36 @@ class BaseCollectionTest extends TestCase
         $this->assertEquals($this->collection->offsetGet(2)->getValue(), static::THIRD_TEST_NUMBER);
     }
 
-    public function testInvalidElement(): void
+    /**
+     * @expectedException \kartavik\Collections\Exceptions\InvalidElementException
+     * @expectedExceptionMessage Element Exception must be instance of kartavik\Collections\Tests\Mocks\Element
+     */
+    public function testAppendInvalidElement(): void
     {
-        $element = new class
-        {
-        };
-        $elementClassName = get_class($element);
+        $this->collection = Collections\Collection::{Mocks\Element::class}();
 
-        $this->expectException(Collections\Exceptions\InvalidElementException::class);
-        $this->expectExceptionMessage(
-            "Element {$elementClassName} must be instance of " . Mocks\Element::class
-        );
-
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $this->collection->append($element);
+        $this->collection->append(new \Exception());
     }
 
     public function testJson(): void
     {
+        $this->collection = Collections\Collection::{Mocks\Element::class}();
+
+        $this->collection->append(new Mocks\Element(static::FIRST_TEST_NUMBER));
+        $this->collection->append(new Mocks\Element(static::SECOND_TEST_NUMBER));
+        $this->collection->append(new Mocks\Element(static::THIRD_TEST_NUMBER));
+
         $this->assertEquals((array)$this->collection, $this->collection->jsonSerialize());
     }
 
     public function testArrayObjectAccess(): void
     {
+        $this->collection = Collections\Collection::{Mocks\Element::class}();
         $this->assertEquals(0, count($this->collection));
 
-        $this->testAppends();
+        $this->collection->append(new Mocks\Element(static::FIRST_TEST_NUMBER));
+        $this->collection->append(new Mocks\Element(static::SECOND_TEST_NUMBER));
+        $this->collection->append(new Mocks\Element(static::THIRD_TEST_NUMBER));
 
         $element = new Collections\Tests\Mocks\Element(static::SECOND_TEST_NUMBER);
         $this->collection[] = $element;
@@ -134,7 +114,7 @@ class BaseCollectionTest extends TestCase
     {
         $element = new Mocks\Element(static::SECOND_TEST_NUMBER);
 
-        $instance = new $this->collection([$element]);
+        $instance = new Collections\Collection(Mocks\Element::class, [$element]);
         $this->assertEquals($element, $instance[0]);
     }
 
