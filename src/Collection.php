@@ -3,12 +3,13 @@
 namespace kartavik\Collections;
 
 use kartavik\Collections\Exceptions\InvalidElementException;
+use kartavik\Collections\Exceptions\UnprocessedTypeException;
 
 /**
  * Class Collection
  * @package kartavik\Collections
  */
-class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
+class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable, \Serializable
 {
     /** @var string */
     private $type = null;
@@ -63,6 +64,19 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         }
     }
 
+    public static function makeSafe(string $type, iterable ...$iterables)
+    {
+        $collection = new Collection($type);
+
+        foreach ($iterables as $iterable) {
+            foreach ($iterable as $key => $item) {
+                $collection->add($item, $key);
+            }
+        }
+
+        return $collection;
+    }
+
     /**
      * @param mixed $index
      * @param mixed $value
@@ -72,6 +86,29 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     public function offsetSet($index, $value): void
     {
         $this->add($value, $index);
+    }
+
+    public function serialize()
+    {
+        return serialize($this->container);
+    }
+
+    public function unserialize($serialized, array $options = [])
+    {
+        $unserialized = unserialize($serialized, $options);
+
+        if (is_iterable($unserialized)) {
+            return $this->join($unserialized, true);
+        }
+
+        throw new \InvalidArgumentException('Serialized object must be iterable');
+    }
+
+    public function join(iterable $iterable, bool $useKeys = false)
+    {
+        foreach ($iterable as $key => $item) {
+            $this->add($item, $useKeys ? $key : null);
+        }
     }
 
     public function jsonSerialize(): array
@@ -109,16 +146,16 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     }
 
     /**
-     * @param $object
+     * @param $item
      *
      * @throws InvalidElementException
      */
-    public function validate($object): void
+    public function validate($item): void
     {
         $type = $this->type();
 
-        if (!$object instanceof $type) {
-            throw new InvalidElementException($object, $type);
+        if (!$item instanceof $type) {
+            throw new InvalidElementException($item, $type);
         }
     }
 
@@ -134,9 +171,9 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return Collection::{$type}($elements);
     }
 
-    public function walk(callable $function): bool
+    public function walk(callable $callback): bool
     {
-        return array_walk($this->container, $function);
+        return array_walk($this->container, $callback);
     }
 
     public function chunk(int $size): Collection
@@ -157,16 +194,16 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return $collection;
     }
 
-    public function column(string $property, callable $function = null): Collection
+    public function column(string $property, callable $callback = null): Collection
     {
         $getterType = get_class($this->offsetGet(0)->$property);
 
-        if (!is_null($function)) {
+        if (!is_null($callback)) {
             /** @var Collection $collection */
             $collection = Collection::{$getterType}();
 
             foreach ($this->jsonSerialize() as $item) {
-                $collection->append(call_user_func($function, $item->$property));
+                $collection->append(call_user_func($callback, $item->$property));
             }
 
             return $collection;
@@ -185,12 +222,12 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return array_pop($this->container);
     }
 
-    public function sum(callable $function)
+    public function sum(callable $callback)
     {
         $sum = 0;
 
         foreach ($this as $element) {
-            $sum += call_user_func($function, $element);
+            $sum += call_user_func($callback, $element);
         }
 
         return $sum;
@@ -208,9 +245,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
             $arguments = $arguments[0];
         }
 
-        if (!class_exists($name)) {
-            throw new \BadMethodCallException("Class with name {$name} does not exist!");
-        }
+        static::validateType($name);
 
         reset($arguments);
 
@@ -230,5 +265,12 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     {
         $this->validate($item);
         $this->container[$index ?? $this->count()] = $item;
+    }
+
+    protected static function validateType(string $type): void
+    {
+        if (!class_exists($type)) {
+            throw new UnprocessedTypeException($type);
+        }
     }
 }

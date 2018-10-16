@@ -3,6 +3,7 @@
 namespace kartavik\Collections\Tests\Unit;
 
 use kartavik\Collections\Collection;
+use kartavik\Collections\Exceptions\UnprocessedTypeException;
 use kartavik\Collections\Tests\Mocks\Element;
 use PHPUnit\Framework\TestCase;
 
@@ -12,6 +13,8 @@ use PHPUnit\Framework\TestCase;
  */
 class ConstructorTest extends TestCase
 {
+    // region Success constructs
+
     public function testSimpleConstruct(): void
     {
         $collection = new Collection(Element::class);
@@ -24,7 +27,7 @@ class ConstructorTest extends TestCase
         print_r($collection);
     }
 
-    public function testContstructWithArray(): void
+    public function testConstructWithArray(): void
     {
         $elements = [
             new Element(mt_rand()),
@@ -55,7 +58,7 @@ class ConstructorTest extends TestCase
         $this->assertEquals(Element::class, $collection->type());
     }
 
-    public function testSimpleStaticConstruct(): void
+    public function testStaticConstruct(): void
     {
         $collection = Collection::{Element::class}();
 
@@ -96,4 +99,24 @@ class ConstructorTest extends TestCase
         $this->assertEquals($subCollection, $collection);
         $this->assertEquals(Element::class, $collection->type());
     }
+
+    // endregion
+
+    // region Failed constructs
+
+    public function testConstructWithInvalidType(): void
+    {
+        $this->expectException(UnprocessedTypeException::class);
+
+        new Collection('Invalid type');
+    }
+
+    public function testStaticConstructWithInvalidType(): void
+    {
+        $this->expectException(UnprocessedTypeException::class);
+
+        Collection::{'Invalid type'}();
+    }
+
+    // endregion
 }

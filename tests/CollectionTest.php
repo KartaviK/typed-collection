@@ -51,17 +51,6 @@ class BaseCollectionTest extends TestCase
         $this->collection->append(new \Exception());
     }
 
-    public function testJson(): void
-    {
-        $this->collection = Collections\Collection::{Mocks\Element::class}();
-
-        $this->collection->append(new Mocks\Element(static::FIRST_TEST_NUMBER));
-        $this->collection->append(new Mocks\Element(static::SECOND_TEST_NUMBER));
-        $this->collection->append(new Mocks\Element(static::THIRD_TEST_NUMBER));
-
-        $this->assertEquals((array)$this->collection, $this->collection->jsonSerialize());
-    }
-
     public function testArrayObjectAccess(): void
     {
         $this->collection = Collections\Collection::{Mocks\Element::class}();
@@ -76,29 +65,6 @@ class BaseCollectionTest extends TestCase
 
         $this->assertEquals(4, count($this->collection));
         $this->assertEquals($element, $this->collection->offsetGet(3));
-    }
-
-    public function testStatic(): void
-    {
-        $element = new Collections\Tests\Mocks\Element(static::SECOND_TEST_NUMBER);
-
-        /** @var Collections\Collection $collection */
-        $collection = Collections\Collection::{Mocks\Element::class}($element);
-
-        $this->assertEquals(Mocks\Element::class, $collection->type());
-
-        $collection->append(new Mocks\Element(static::THIRD_TEST_NUMBER));
-
-        $this->assertEquals(static::SECOND_TEST_NUMBER, $collection->offsetGet(0)->getValue());
-        $this->assertEquals(static::THIRD_TEST_NUMBER, $collection->offsetGet(1)->getValue());
-
-        $collection = Collections\Collection::{Mocks\Element::class}([$element, $element]);
-        $this->assertEquals($element, $collection->offsetGet(0));
-        $this->assertEquals($element, $collection->offsetGet(1));
-
-        $this->expectException(\BadMethodCallException::class);
-        $invalidType = 'asd asd';
-        Collections\Collection::{$invalidType}();
     }
 
     public function testTypeOfCollection(): void
