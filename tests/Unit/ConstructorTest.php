@@ -23,8 +23,6 @@ class ConstructorTest extends TestCase
         $this->assertEmpty($collection);
         $this->assertEquals(new Collection(Element::class), $collection);
         $this->assertEquals(Element::class, $collection->type());
-
-        print_r($collection);
     }
 
     public function testConstructWithArray(): void
