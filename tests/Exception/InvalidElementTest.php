@@ -5,7 +5,6 @@ namespace kartavik\Collections\Tests\Exception;
 use PHPUnit\Framework\TestCase;
 use kartavik\Collections\Exception\InvalidElement;
 
-
 /**
  * Class InvalidElementTest
  * @package kartavik\Collections\Tests\Exception

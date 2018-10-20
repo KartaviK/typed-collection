@@ -5,7 +5,6 @@ namespace kartavik\Collections\Tests\Exception;
 use kartavik\Collections\Exception\UnprocessedType;
 use PHPUnit\Framework\TestCase;
 
-
 /**
  * Class UnprocessedTypeTest
  * @package kartavik\Collections\Tests\Exception
