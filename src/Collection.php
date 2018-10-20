@@ -2,8 +2,7 @@
 
 namespace kartavik\Collections;
 
-use kartavik\Collections\Exception\InvalidElement;
-use kartavik\Collections\Exception\UnprocessedType;
+use kartavik\Collections\Exception;
 
 /**
  * Class Collection
@@ -91,7 +90,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
                 foreach ($var as $item) {
                     try {
                         $this->validate($item);
-                    } catch (InvalidElement $ex) {
+                    } catch (Exception\InvalidElement $ex) {
                         return false;
                     }
                 }
@@ -121,7 +120,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         $type = $this->type();
 
         if (!$item instanceof $type) {
-            throw new UnprocessedType($item, $type);
+            throw new Exception\UnprocessedType($item, $type);
         }
     }
 
@@ -219,7 +218,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     protected static function validateType(string $type): void
     {
         if (!class_exists($type)) {
-            throw new UnprocessedType($type);
+            throw new Exception\UnprocessedType($type);
         }
     }
 }
