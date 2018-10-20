@@ -9,7 +9,7 @@ use kartavik\Collections\Exceptions\UnprocessedTypeException;
  * Class Collection
  * @package kartavik\Collections
  */
-class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable, \Serializable
+class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
 {
     /** @var string */
     private $type = null;
@@ -19,11 +19,13 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
 
     public function __construct(string $type, iterable ...$iterables)
     {
+        static::validateType($type);
+
         $this->type = $type;
 
         foreach ($iterables as $iterable) {
-            foreach ($iterable as $item) {
-                $this->add($item);
+            foreach ($iterable as $index => $item) {
+                $this->add($item, $index);
             }
         }
     }
@@ -57,24 +59,11 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
 
     public function append(): void
     {
-        $values = func_get_args();
+        $items = func_get_args();
 
-        foreach ($values as $item) {
+        foreach ($items as $item) {
             $this->add($item);
         }
-    }
-
-    public static function makeSafe(string $type, iterable ...$iterables)
-    {
-        $collection = new Collection($type);
-
-        foreach ($iterables as $iterable) {
-            foreach ($iterable as $key => $item) {
-                $collection->add($item, $key);
-            }
-        }
-
-        return $collection;
     }
 
     /**
@@ -88,41 +77,18 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         $this->add($value, $index);
     }
 
-    public function serialize()
-    {
-        return serialize($this->container);
-    }
-
-    public function unserialize($serialized, array $options = [])
-    {
-        $unserialized = unserialize($serialized, $options);
-
-        if (is_iterable($unserialized)) {
-            return $this->join($unserialized, true);
-        }
-
-        throw new \InvalidArgumentException('Serialized object must be iterable');
-    }
-
-    public function join(iterable $iterable, bool $useKeys = false)
-    {
-        foreach ($iterable as $key => $item) {
-            $this->add($item, $useKeys ? $key : null);
-        }
-    }
-
     public function jsonSerialize(): array
     {
         return $this->container;
     }
 
-    public function isCompatible($element): bool
+    public function isCompatible($var): bool
     {
         try {
-            if ($element instanceof self) {
+            if ($var instanceof self) {
                 return true;
-            } elseif (is_array($element)) {
-                foreach ($element as $item) {
+            } elseif (is_array($var)) {
+                foreach ($var as $item) {
                     try {
                         $this->validate($item);
                     } catch (InvalidElementException $ex) {
@@ -155,25 +121,8 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         $type = $this->type();
 
         if (!$item instanceof $type) {
-            throw new InvalidElementException($item, $type);
+            throw new UnprocessedTypeException($item, $type);
         }
-    }
-
-    public function map(callable $callback): Collection
-    {
-        $type = get_class(call_user_func(
-            $callback,
-            $this->first()
-        ));
-
-        $elements = array_map($callback, $this->container, array_keys($this->container));
-
-        return Collection::{$type}($elements);
-    }
-
-    public function walk(callable $callback): bool
-    {
-        return array_walk($this->container, $callback);
     }
 
     public function chunk(int $size): Collection
