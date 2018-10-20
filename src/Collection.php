@@ -2,8 +2,8 @@
 
 namespace kartavik\Collections;
 
-use kartavik\Collections\Exceptions\InvalidElementException;
-use kartavik\Collections\Exceptions\UnprocessedTypeException;
+use kartavik\Collections\Exception\InvalidElement;
+use kartavik\Collections\Exception\UnprocessedType;
 
 /**
  * Class Collection
@@ -70,7 +70,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      * @param mixed $index
      * @param mixed $value
      *
-     * @throws InvalidElementException
+     * @throws InvalidElement
      */
     public function offsetSet($index, $value): void
     {
@@ -91,7 +91,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
                 foreach ($var as $item) {
                     try {
                         $this->validate($item);
-                    } catch (InvalidElementException $ex) {
+                    } catch (InvalidElement $ex) {
                         return false;
                     }
                 }
@@ -114,14 +114,14 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     /**
      * @param $item
      *
-     * @throws InvalidElementException
+     * @throws InvalidElement
      */
     public function validate($item): void
     {
         $type = $this->type();
 
         if (!$item instanceof $type) {
-            throw new UnprocessedTypeException($item, $type);
+            throw new UnprocessedType($item, $type);
         }
     }
 
@@ -219,7 +219,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     protected static function validateType(string $type): void
     {
         if (!class_exists($type)) {
-            throw new UnprocessedTypeException($type);
+            throw new UnprocessedType($type);
         }
     }
 }

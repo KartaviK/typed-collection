@@ -1,27 +1,24 @@
 <?php
 
-namespace kartavik\Collections\Exceptions;
-
-use Throwable;
+namespace kartavik\Collections\Exception;
 
 /**
  * Class UnprocessedTypeException
  * @package kartavik\Collections\Exceptions
  */
-class UnprocessedTypeException extends \InvalidArgumentException
+class UnprocessedType extends \InvalidArgumentException
 {
     /** @var string|null */
     protected $type;
 
     public function __construct(
         ?string $type,
-        string $message = "Type must be declared class",
         int $code = -1,
-        Throwable $previous = null
+        \Throwable $previous = null
     ) {
         $this->type = $type;
 
-        parent::__construct($message, $code, $previous);
+        parent::__construct("Type must be declared class", $code, $previous);
     }
 
     public function getType(): ?string

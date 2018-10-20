@@ -3,7 +3,7 @@
 namespace kartavik\Collections\Tests\Unit;
 
 use kartavik\Collections\Collection;
-use kartavik\Collections\Exceptions\UnprocessedTypeException;
+use kartavik\Collections\Exception\UnprocessedType;
 use kartavik\Collections\Tests\Mocks\Element;
 use PHPUnit\Framework\TestCase;
 
@@ -104,14 +104,14 @@ class ConstructorTest extends TestCase
 
     public function testConstructWithInvalidType(): void
     {
-        $this->expectException(UnprocessedTypeException::class);
+        $this->expectException(UnprocessedType::class);
 
         new Collection('Invalid type');
     }
 
     public function testStaticConstructWithInvalidType(): void
     {
-        $this->expectException(UnprocessedTypeException::class);
+        $this->expectException(UnprocessedType::class);
 
         Collection::{'Invalid type'}();
     }

@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  */
 class InvalidElementExceptionTest extends TestCase
 {
-    /** @var Collections\Exceptions\InvalidElementException */
+    /** @var Collections\Exception\InvalidElement */
     protected $exception;
 
     /** @var object */
@@ -27,12 +27,12 @@ class InvalidElementExceptionTest extends TestCase
         $this->needType = get_class(new class
         {
         });
-        $this->exception = new Collections\Exceptions\InvalidElementException($this->object, $this->needType);
+        $this->exception = new Collections\Exception\InvalidElement($this->object, $this->needType);
     }
 
     public function testGetNeedType(): void
     {
-        $this->assertEquals($this->object, $this->exception->getObject());
+        $this->assertEquals($this->object, $this->exception->getVar());
     }
 
     public function testGetObject(): void

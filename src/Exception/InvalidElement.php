@@ -1,29 +1,29 @@
 <?php
 
-namespace kartavik\Collections\Exceptions;
+namespace kartavik\Collections\Exception;
 
 /**
  * Class InvalidElementException
  * @package kartavik\Collections\Exceptions
  */
-class InvalidElementException extends \InvalidArgumentException
+class InvalidElement extends \InvalidArgumentException
 {
-    /** @var mixed $object */
-    protected $object;
+    /** @var mixed */
+    protected $var;
 
     /** @var string */
     protected $needType;
 
     public function __construct(
-        $object,
+        $var,
         string $needType,
         int $code = 0,
         \Throwable $previous = null
     ) {
-        $this->object = $object;
+        $this->var = $var;
         $this->needType = $needType;
 
-        $objectType = get_class($object);
+        $objectType = get_class($var);
 
         parent::__construct(
             "Element {$objectType} must be instance of " . $needType,
@@ -32,9 +32,9 @@ class InvalidElementException extends \InvalidArgumentException
         );
     }
 
-    public function getObject()
+    public function getVar()
     {
-        return $this->object;
+        return $this->var;
     }
 
     public function getNeedType(): string
