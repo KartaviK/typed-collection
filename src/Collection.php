@@ -8,7 +8,7 @@ use kartavik\Collections\Exception;
  * Class Collection
  * @package kartavik\Collections
  */
-class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
+class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable, \Serializable
 {
     /** @var string */
     private $type = null;
@@ -78,7 +78,19 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
 
     public function jsonSerialize(): array
     {
-        return $this->container;
+        return get_object_vars($this);
+    }
+
+    public function serialize(): string
+    {
+        return json_encode($this);
+    }
+
+    public function unserialize($serialized): Collection
+    {
+        $json = json_decode($serialized);
+
+        return new static($json['type'], $json['container']);
     }
 
     public function isCompatible(iterable $collection): bool
