@@ -18,7 +18,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
 
     public function __construct(string $type, iterable ...$iterables)
     {
-        static::validateType($type);
+        static::validateObject($type);
 
         $this->type = $type;
 
@@ -193,7 +193,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
             $arguments = $arguments[0];
         }
 
-        static::validateType($name);
+        static::validateObject($name);
 
         reset($arguments);
 
@@ -215,7 +215,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         $this->container[$index ?? $this->count()] = $item;
     }
 
-    protected static function validateType(string $type): void
+    protected static function validateObject(string $type): void
     {
         if (!class_exists($type)) {
             throw new Exception\UnprocessedType($type);
