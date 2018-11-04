@@ -19,145 +19,33 @@ composer require kartavik/generic-collection-php
 
 ## Usage
 
-For all examples we will use this mock:
+Two variant to instantiate collection:
 
-```php
-<?php
+- Constructor:
 
-class User
-{
-    /** @var string */
-    protected $name;
-    
-    /** @var int */
-    protected $age;
-    
-    public function __construct(string $name, int $age)
-    {
-        $this->name = $name;
-        $this->age = $age;
-    }
-    
-    public function getName(): string
-    {
-        return $this->name;
-    }
-    
-    public function getAge(): int
-    {
-        return $this->age;
-    }
-}
-
-```
-
-### Constructor
-
-#### Instantiate empty collection:
 ```php
 <?php
 
 use kartavik\Collections\Collection;
 
-$collection = new Collection(User::class);
+/** @var iterable $iterable */
+$collection = new Collection(stdClass::class, $iterable);
 
-print_r($collection);
-```
-Output:
-```text
-kartavik\Collections\Collection Object
-(
-    [type:kartavik\Collections\Collection:private] => kartavik\Collections\Tests\Mocks\Element
-    [container:protected] => Array
-    (
-    )
-)
+/** @var iterable[] $iterables */
+$collection = new Collection(stdClass::class, ...$iterables);
 ```
 
-#### Instantiate with array:
+- Static call:
 ```php
 <?php
 
 use kartavik\Collections\Collection;
 
-$users = [
-    new User('Roman', 17),
-    new User('Dima', 22),
-];
+/** @var iterable $iterable */
+$collection = Collection::{stdClass::class}($iterable);
 
-$collection = new Collection(User::class, $users);
-```
-
-#### Instantiate with another collection:
-```php
-<?php
-
-use kartavik\Collections\Collection;
-
-$users = [
-    new User('Roman', 17),
-    new User('Dima', 22),
-];
-
-$subCollection = new Collection(User::class, $users);
-$collection = new Collection(User::class, $subCollection);
-```
-
-#### Instantiate with unbounded arrays:
-```php
-<?php
-
-use kartavik\Collections\Collection;
-
-$users[0] = [new User('Roman', 17), new User('Denis', 43),];
-$users[1] = [new User('Vadim', 24),];
-$users[2] = [new User('Jho', 12), new User('Anna', 33), new User('Cabo', 25),];
-$users[3] = [new User('Ruby', 11),];
-$users[4] = [new User('Venom', 45), new User('Dima', 64), new User('Many', 52)];
-
-$collection = new Collection(
-    User::class,
-    $users[0],
-    $users[1],
-    $users[2],
-    $users[3],
-    $users[4]
-);
-```
-
-#### Instantiate with unbounded collections:
-```php
-<?php
-
-use kartavik\Collections\Collection;
-
-$collection[0] = new Collection(User::class, [new User('Roman', 17), new User('Denis', 43),]);
-$collection[1] = new Collection(User::class, [new User('Vadim', 24),]);
-$collection[2] = new Collection(User::class, [new User('Jho', 12), new User('Anna', 33), new User('Cabo', 25),]);
-$collection[3] = new Collection(User::class, [new User('Ruby', 11),]);
-$collection[4] = new Collection(User::class, [new User('Venom', 45), new User('Dima', 64), new User('Many', 52)]);
-
-$collection = new Collection(
-    User::class, 
-    $collection[0], 
-    $collection[1], 
-    $collection[2],
-    $collection[3], 
-    $collection[4]
-);
-```
-
-#### Instantiate with combined iterable objects
-```php
-<?php
-
-use kartavik\Collections\Collection;
-
-$array = [new User('Roman', 17), new User('Denis', 43),];
-$collection = $collection[1] = new Collection(User::class, [new User('Vadim', 24),]);
-$iterable = 'any iterable object';
-
-$collection = new Collection(User::class, $array, $collection, $iterable);
+/** @var iterable[] $iterables */
+$collection = Collection::{stdClass::class}(...$iterables);
 ```
 
 ### Use extendibility
@@ -168,77 +56,56 @@ $collection = new Collection(User::class, $array, $collection, $iterable);
 
 use kartavik\Collections\Collection;
 
-class UserCollection extends Collection
+class StdClassCollection extends Collection
 {
     // your properties, constants, traits
     
-    public function __construct(array ...$iterable)
+    public function __construct(iterable ...$iterable)
     {
-        parent::__construct(User::class, ...$iterable);
+        parent::__construct(stdClass::class, ...$iterable);
     }
     
     // your methods
 }
 ```
 
-And just create instance:
+## Where is strong type?
 
-```php
-<?php
+I put simple logic to set methods that will check element on `instanceof` type,
+that cached in collection.
 
-use UserCollection;
+If you will try in any moment put to the collection element that is not instance of collection type
+you will get [Exception\InvalidElement](./src/Exception/InvalidElement.php)
 
-$users = [
-    new User('Roman', 17),
-    new User('Denis', 43),
-];
+If you will try set type that is not class than you will catch [Exception\UnprocessedType](./src/Exception/UnprocessedType.php)
 
-$collection = new UserCollection($users);
-```
+**Important!** this collection is only for `class` objects
 
-### Use static (beta)
+## Supported interfaces:
 
-You can create instance without class that implements your collection.
+- \ArrayAccess
+- \Countable
+- \IteratorAggregate
+- \JsonSerializable
+- \Serializable
 
-This implementation of static call method works with constructor
+## Helpful methods
+
+### chunk
+
+`Collection chunk(int $size)`
+
 ```php
 <?php
 
 use kartavik\Collections\Collection;
 
-$users = [
-    new User('Roman', 17),
-    new User('Denis', 43),
-];
-
-$collection = Collection::{User::class}($users);
+$collection = new Collection(stdClass::class, [new stdClass(), new stdClass()]);
+$collection->chunk(1);
 ```
 
-## Where is strong type?
-
-I put simple logic to set methods taht will check element on `instanceof` type,
-that cached in collection.
-
-If you will try in any moment put to the collection element that is not instance of collection type
-you will get `InvalidElementException()`
-
-**Important!** this collection is only for `class` objects
-
-## Methods
-
-### map
-
-signature:
-`Collection map(callable $function, Collection ...$collection)`
-
-### chunk
-
-signature: 
-`Collection chunk(int $size)`
-
-## Contributors:
+## Authors:
 - [Roman <KartaviK> Varkuta](mailto:roman.varkuta@gmail.com)
 
 ## License
-
 [MIT](./LICENSE)
