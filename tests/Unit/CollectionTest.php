@@ -361,4 +361,23 @@ class CollectionTest extends TestCase
         $this->assertFalse($collection->isCompatible($arrayObject));
         $this->assertFalse($collection->isCompatible($arrayCollection));
     }
+
+    public function testJsonSerialize(): void
+    {
+        $array = [
+            new \stdClass(),
+            new \stdClass(),
+            new \stdClass(),
+        ];
+
+        $collection = new Collection(\stdClass::class, $array);
+
+        $this->assertArraySubset(
+            [
+                'type' => \stdClass::class,
+                'container' => $array,
+            ],
+            $collection->jsonSerialize()
+        );
+    }
 }
