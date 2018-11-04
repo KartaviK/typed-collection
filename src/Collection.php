@@ -150,6 +150,41 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return $collection;
     }
 
+    public function map(\Closure $closure, iterable ...$collections): array
+    {
+        $result = [];
+        $count = $this->count();
+        $values[] = array_values($this->container);
+
+        foreach ($collections as $index => $collection) {
+            if (!$this->isCompatible($collection)) {
+                throw new Exception\IncompatibleIterable($collection, 'Given iterable object contain invalid element');
+            }
+
+            if ($count !== count($collection)) {
+                throw new Exception\IncompatibleIterable(
+                    $collection,
+                    'Given iterable object must contain same count elements'
+                );
+            }
+
+            foreach ($collection as $item) {
+                $values[$index + 1][] = $item;
+            }
+        }
+
+        foreach (range(0, $this->count() - 1) as $index) {
+            $result[] = call_user_func(
+                $closure,
+                ...array_map(function (array $collection) use ($index) {
+                    return $collection[$index];
+                }, $values)
+            );
+        }
+
+        return $result;
+    }
+
     public function current()
     {
         return current($this->container);
@@ -184,7 +219,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
 
     /**
      * @param string $name
-     * @param array  $arguments
+     * @param array $arguments
      *
      * @return Collection
      */

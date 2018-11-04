@@ -3,6 +3,7 @@
 namespace kartavik\Collections\Tests\Unit;
 
 use kartavik\Collections\Collection;
+use kartavik\Collections\Exception\IncompatibleIterable;
 use kartavik\Collections\Exception\InvalidElement;
 use kartavik\Collections\Exception\UnprocessedType;
 use kartavik\Collections\Tests\Mocks\Element;
@@ -396,5 +397,92 @@ class CollectionTest extends TestCase
             ],
             $collection->jsonSerialize()
         );
+    }
+
+    public function testSuccessMap(): void
+    {
+        $elements = [
+            new Element(1),
+            new Element(2),
+            new Element(3),
+        ];
+
+        $collections = [
+            new Collection(Element::class, $elements),
+            new Collection(Element::class, $elements),
+            new Collection(Element::class, $elements),
+        ];
+
+        $mapped = $collections[0]->map(function (Element $first, Element $second, Element $third): array {
+            return [
+                'first' => $first->getValue(),
+                'second' => $second->getValue(),
+                'third' => $third->getValue(),
+            ];
+        }, $collections[1], $collections[2]);
+
+        $this->assertEquals(
+            [
+                [
+                    'first' => 1,
+                    'second' => 1,
+                    'third' => 1,
+                ],
+                [
+                    'first' => 2,
+                    'second' => 2,
+                    'third' => 2,
+                ],
+                [
+                    'first' => 3,
+                    'second' => 3,
+                    'third' => 3,
+                ],
+            ],
+            $mapped
+        );
+    }
+
+    /**
+     * @expectedException \kartavik\Collections\Exception\IncompatibleIterable
+     * @expectedExceptionMessage Given iterable object must contain same count elements
+     */
+    public function testInvalidCountMap(): void
+    {
+        $first = [
+            new Element(1),
+            new Element(2),
+            new Element(3),
+        ];
+        $second = [
+            new Element(1),
+            new Element(2),
+        ];
+        $collection = new Collection(Element::class, $first);
+
+        $collection->map(function (Element $element): int {
+            return $element->getValue();
+        }, $second);
+    }
+
+    /**
+     * @expectedException \kartavik\Collections\Exception\IncompatibleIterable
+     * @expectedExceptionMessage Given iterable object contain invalid element
+     */
+    public function testInvalidTypeMap(): void
+    {
+        $first = [
+            new Element(1),
+            new Element(2),
+        ];
+        $second = [
+            new Element(1),
+            new \stdClass(),
+        ];
+        $collection = new Collection(Element::class, $first);
+
+        $collection->map(function (Element $element): int {
+            return $element->getValue();
+        }, $second);
     }
 }

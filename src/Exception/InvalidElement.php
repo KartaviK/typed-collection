@@ -2,11 +2,13 @@
 
 namespace kartavik\Collections\Exception;
 
+use kartavik\Collections\Exception;
+
 /**
  * Class InvalidElementException
  * @package kartavik\Collections\Exceptions
  */
-class InvalidElement extends \InvalidArgumentException
+class InvalidElement extends \InvalidArgumentException implements Exception
 {
     /** @var mixed */
     protected $var;
