@@ -124,17 +124,12 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
 
     public function chunk(int $size): Collection
     {
-        $mappedType = get_class($this->offsetGet(0));
         /** @var Collection $collection */
-        $collection = Collection::{Collection::class}();
-        $chunked = array_chunk($this->jsonSerialize(), $size);
+        $collection = new static(Collection::class);
+        $chunked = array_chunk($this->container, $size);
 
-        foreach ($chunked as $index => $chunk) {
-            $collection->append(Collection::{$mappedType}());
-
-            foreach ($chunk as $item) {
-                $collection[$index]->append($item);
-            }
+        foreach ($chunked as $chunk) {
+            $collection->append(new Collection($this->type(), $chunk));
         }
 
         return $collection;
