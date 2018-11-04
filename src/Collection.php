@@ -130,7 +130,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         $type = $this->type();
 
         if (!$item instanceof $type) {
-            throw new Exception\UnprocessedType($item, $type);
+            throw new Exception\InvalidElement($item, $type);
         }
     }
 
