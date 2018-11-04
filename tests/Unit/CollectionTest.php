@@ -256,4 +256,33 @@ class CollectionTest extends TestCase
         $this->assertCount(3, $collection);
         $this->assertEquals(3, $collection->count());
     }
+
+    public function testChunk(): void
+    {
+        $elements = [
+            new \stdClass(),
+            new \stdClass(),
+            new \stdClass(),
+            new \stdClass(),
+            new \stdClass(),
+        ];
+
+        $collection = new Collection(\stdClass::class, $elements);
+        $this->assertEquals(
+            new Collection(Collection::class, [
+                new Collection(\stdClass::class, [
+                    new \stdClass(),
+                    new \stdClass(),
+                ]),
+                new Collection(\stdClass::class, [
+                    new \stdClass(),
+                    new \stdClass(),
+                ]),
+                new Collection(\stdClass::class, [
+                    new \stdClass(),
+                ]),
+            ]),
+            $collection->chunk(2)
+        );
+    }
 }
