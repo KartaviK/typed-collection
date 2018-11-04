@@ -2,11 +2,13 @@
 
 namespace kartavik\Collections\Exception;
 
+use kartavik\Collections\Exception;
+
 /**
  * Class UnprocessedTypeException
  * @package kartavik\Collections\Exceptions
  */
-class UnprocessedType extends \InvalidArgumentException
+class UnprocessedType extends \InvalidArgumentException implements Exception
 {
     /** @var string|null */
     protected $type;
