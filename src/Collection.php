@@ -98,7 +98,14 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     {
         reset($this->container);
 
-        return $this->container[key($this->container)];
+        return current($this->container);
+    }
+
+    public function last(): object
+    {
+        end($this->container);
+
+        return current($this->container);
     }
 
     /**
