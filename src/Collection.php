@@ -147,7 +147,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return $collection;
     }
 
-    public function column(string $property, callable $callback = null): Collection
+    public function column(string $property, \Closure $callback = null): Collection
     {
         $getterType = get_class($this->offsetGet(0)->$property);
 
@@ -175,7 +175,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return array_pop($this->container);
     }
 
-    public function sum(callable $callback)
+    public function sum(\Closure $callback)
     {
         $sum = 0;
 
@@ -184,6 +184,17 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         }
 
         return $sum;
+    }
+
+    public function count(): int
+    {
+        return count($this->container);
+    }
+
+    public function add($item, $index = null): void
+    {
+        $this->validate($item);
+        $this->container[$index ?? $this->count()] = $item;
     }
 
     /**
@@ -207,17 +218,6 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         } else {
             return new static($name, $arguments);
         }
-    }
-
-    public function count(): int
-    {
-        return count($this->container);
-    }
-
-    public function add($item, $index = null): void
-    {
-        $this->validate($item);
-        $this->container[$index ?? $this->count()] = $item;
     }
 
     protected static function validateObject(string $type): void
