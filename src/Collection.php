@@ -69,7 +69,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      * @param mixed $index
      * @param mixed $value
      *
-     * @throws InvalidElement
+     * @throws Exception\InvalidElement
      */
     public function offsetSet($index, $value): void
     {
@@ -113,7 +113,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     /**
      * @param $item
      *
-     * @throws InvalidElement
+     * @throws Exception\InvalidElement
      */
     public function validate($item): void
     {
