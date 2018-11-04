@@ -110,14 +110,14 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     {
         reset($this->container);
 
-        return current($this->container);
+        return $this->current();
     }
 
     public function last(): object
     {
         end($this->container);
 
-        return current($this->container);
+        return $this->current();
     }
 
     /**
@@ -149,7 +149,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
 
     public function column(\Closure $callback): Collection
     {
-        $type = get_class(call_user_func($callback, current($this->container)));
+        $type = get_class(call_user_func($callback, $this->current()));
         $collection = new Collection($type);
         $fetched = [];
 
@@ -160,6 +160,11 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         $collection->append(...$fetched);
 
         return $collection;
+    }
+
+    public function current()
+    {
+        return current($this->container);
     }
 
     public function pop(): object

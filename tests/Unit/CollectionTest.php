@@ -243,6 +243,32 @@ class CollectionTest extends TestCase
         $this->assertCount(2, $collection);
     }
 
+    public function testColumn(): void
+    {
+        $elements = [];
+
+        for ($i = 0; $i < 5; $i++) {
+            $obj = new \stdClass();
+            $obj->value = new Element($i);
+            $elements[] = $obj;
+        }
+
+        $collection = new Collection(\stdClass::class, $elements);
+
+        $this->assertEquals(
+            new Collection(Element::class, [
+                new Element(0),
+                new Element(1),
+                new Element(2),
+                new Element(3),
+                new Element(4),
+            ]),
+            $collection->column(function (\stdClass $obj): Element {
+                return $obj->value;
+            })
+        );
+    }
+
     public function testCount(): void
     {
         $collection = new Collection(\stdClass::class);
