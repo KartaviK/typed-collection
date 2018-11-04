@@ -312,6 +312,23 @@ class CollectionTest extends TestCase
         );
     }
 
+    public function testSum(): void
+    {
+        $elements = [
+            new Element(1),
+            new Element(2),
+            new Element(3),
+        ];
+
+        $collection = new Collection(Element::class, $elements);
+        $expectedValue = 6;
+        $actualValue = $collection->sum(function (Element $element): int {
+            return $element->getValue();
+        });
+
+        $this->assertEquals($expectedValue, $actualValue);
+    }
+
     public function testSuccessIsCompatible(): void
     {
         $array = [
