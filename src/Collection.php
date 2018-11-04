@@ -36,7 +36,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
 
     public function offsetExists($offset): bool
     {
-        return array_key_exists($offset, $this->container);
+        return isset($this->container[$offset]);
     }
 
     public function offsetGet($offset)
