@@ -39,7 +39,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return isset($this->container[$offset]);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset): object
     {
         return $this->container[$offset];
     }
@@ -103,7 +103,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         }
     }
 
-    public function first()
+    public function first(): object
     {
         reset($this->container);
 
@@ -165,7 +165,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         }
     }
 
-    public function pop()
+    public function pop(): object
     {
         return array_pop($this->container);
     }
