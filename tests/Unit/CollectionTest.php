@@ -311,4 +311,54 @@ class CollectionTest extends TestCase
             $collection->chunk(2)
         );
     }
+
+    public function testSuccessIsCompatible(): void
+    {
+        $array = [
+            new \stdClass(),
+            new \stdClass(),
+            new \stdClass(),
+        ];
+        $arrayObject = new \ArrayObject([
+            new \stdClass(),
+            new \stdClass(),
+            new \stdClass(),
+        ]);
+        $arrayCollection = new Collection(\stdClass::class, [
+            new \stdClass(),
+            new \stdClass(),
+            new \stdClass(),
+        ]);
+
+        $collection = new Collection(\stdClass::class);
+
+        $this->assertTrue($collection->isCompatible($array));
+        $this->assertTrue($collection->isCompatible($arrayObject));
+        $this->assertTrue($collection->isCompatible($arrayCollection));
+    }
+
+    public function testFailedIsCompatible(): void
+    {
+        $array = [
+            new \stdClass(),
+            new \stdClass(),
+            new Element(1)
+        ];
+        $arrayObject = new \ArrayObject([
+            new \stdClass(),
+            new \stdClass(),
+            new Element(1)
+        ]);
+        $arrayCollection = new Collection(Element::class, [
+            new Element(1),
+            new Element(1),
+            new Element(1)
+        ]);
+
+        $collection = new Collection(\stdClass::class);
+
+        $this->assertFalse($collection->isCompatible($array));
+        $this->assertFalse($collection->isCompatible($arrayObject));
+        $this->assertFalse($collection->isCompatible($arrayCollection));
+    }
 }
