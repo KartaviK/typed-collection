@@ -39,7 +39,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return array_key_exists($offset, $this->container);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset): object
     {
         return $this->container[$offset];
     }
@@ -67,9 +67,9 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
 
     /**
      * @param mixed $index
-     * @param mixed $value
+     * @param object $value
      *
-     * @throws InvalidElement
+     * @throws Exception\InvalidElement
      */
     public function offsetSet($index, $value): void
     {
@@ -96,6 +96,14 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
                 }
 
                 return true;
+            } else {
+                try {
+                    $this->validate($var);
+                } catch (Exception\InvalidElement $ex) {
+                    return false;
+                }
+
+                return true;
             }
         } catch (\InvalidArgumentException $exception) {
         } finally {
@@ -103,19 +111,21 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         }
     }
 
-    public function first()
+    public function first(): object
     {
         reset($this->container);
 
-        return $this->container[key($this->container)];
+        return current($this->container);
     }
 
-    /**
-     * @param $item
-     *
-     * @throws InvalidElement
-     */
-    public function validate($item): void
+    public function last(): object
+    {
+        end($this->container);
+
+        return current($this->container);
+    }
+
+    public function validate(object $item): void
     {
         $type = $this->type();
 
@@ -142,7 +152,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return $collection;
     }
 
-    public function column(string $property, callable $callback = null): Collection
+    public function column(string $property, \Closure $callback = null): Collection
     {
         $getterType = get_class($this->offsetGet(0)->$property);
 
@@ -165,6 +175,9 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         }
     }
 
+    /**
+     * @return object
+     */
     public function pop()
     {
         return array_pop($this->container);
@@ -209,7 +222,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return count($this->container);
     }
 
-    public function add($item, $index = null): void
+    public function add(object $item, $index = null): void
     {
         $this->validate($item);
         $this->container[$index ?? $this->count()] = $item;
