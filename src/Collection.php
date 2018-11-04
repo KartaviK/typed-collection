@@ -147,27 +147,19 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return $collection;
     }
 
-    public function column(string $property, \Closure $callback = null): Collection
+    public function column(\Closure $callback): Collection
     {
-        $getterType = get_class($this->offsetGet(0)->$property);
+        $type = get_class(call_user_func($callback, current($this->container)));
+        $collection = new Collection($type);
+        $fetched = [];
 
-        if (!is_null($callback)) {
-            /** @var Collection $collection */
-            $collection = Collection::{$getterType}();
-
-            foreach ($this->jsonSerialize() as $item) {
-                $collection->append(call_user_func($callback, $item->$property));
-            }
-
-            return $collection;
-        } else {
-            return Collection::{$getterType}(array_map(
-                function ($item) use ($property) {
-                    return $item->$property;
-                },
-                $this->jsonSerialize()
-            ));
+        foreach ($this->container as $item) {
+            $fetched[] = call_user_func($callback, $item);
         }
+
+        $collection->append(...$fetched);
+
+        return $collection;
     }
 
     public function pop(): object
