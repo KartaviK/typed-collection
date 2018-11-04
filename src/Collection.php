@@ -81,26 +81,17 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return $this->container;
     }
 
-    public function isCompatible($var): bool
+    public function isCompatible(iterable $collection): bool
     {
         try {
-            if ($var instanceof self) {
-                return true;
-            } elseif (is_array($var)) {
-                foreach ($var as $item) {
-                    try {
-                        $this->validate($item);
-                    } catch (Exception\InvalidElement $ex) {
-                        return false;
-                    }
-                }
-
-                return true;
+            foreach ($collection as $item) {
+                $this->validate($item);
             }
-        } catch (\InvalidArgumentException $exception) {
-        } finally {
+        } catch (Exception\InvalidElement $exception) {
             return false;
         }
+
+        return true;
     }
 
     public function first(): object
@@ -118,11 +109,11 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     }
 
     /**
-     * @param $item
+     * @param object $item
      *
      * @throws Exception\InvalidElement
      */
-    public function validate($item): void
+    public function validate(object $item): void
     {
         $type = $this->type();
 
