@@ -485,4 +485,40 @@ class CollectionTest extends TestCase
             return $element->getValue();
         }, $second);
     }
+
+    public function testReverse(): void
+    {
+        $elements = [
+            'first' => new \stdClass(),
+            new \stdClass(),
+            'third' => new \stdClass(),
+            new \stdClass(),
+        ];
+
+        $collection = new Collection(\stdClass::class, $elements);
+        $collection = $collection->reverse();
+
+        $this->assertEquals(
+            new Collection(\stdClass::class, [
+                0 => new \stdClass(),
+                'third' => new \stdClass(),
+                1 => new \stdClass(),
+                'first' => new \stdClass(),
+            ]),
+            $collection
+        );
+
+        $collection = new Collection(\stdClass::class, $elements);
+        $collection = $collection->reverse(true);
+
+        $this->assertEquals(
+            new Collection(\stdClass::class, [
+                1 => new \stdClass(),
+                'third' => new \stdClass(),
+                0 => new \stdClass(),
+                'first' => new \stdClass(),
+            ]),
+            $collection
+        );
+    }
 }
