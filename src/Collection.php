@@ -185,6 +185,11 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return $result;
     }
 
+    public function reverse(bool $preserveKeys = false): Collection
+    {
+        return new static($this->type(), array_reverse($this->container, $preserveKeys));
+    }
+    
     public function current()
     {
         return current($this->container);
