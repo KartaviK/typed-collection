@@ -1,5 +1,5 @@
 {
-  "name": "kartavik/generic-collection-php",
+  "name": "kartavik/typed-collection",
   "description": "Realization of generic collection",
   "type": "library",
   "require": {
