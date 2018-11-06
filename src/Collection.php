@@ -2,7 +2,7 @@
 
 namespace kartavik\Support;
 
-use kartavik\Support\Exception;
+use kartavik\Support\Method;
 
 /**
  * Class Collection
@@ -10,6 +10,10 @@ use kartavik\Support\Exception;
  */
 class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
 {
+    use Method\Append,
+        Method\Chunk,
+        Method\Column;
+
     /** @var string */
     private $type = null;
 
@@ -54,15 +58,6 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->container);
-    }
-
-    public function append(): void
-    {
-        $items = func_get_args();
-
-        foreach ($items as $item) {
-            $this->add($item);
-        }
     }
 
     /**
@@ -120,34 +115,6 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         if (!$item instanceof $type) {
             throw new Exception\InvalidElement($item, $type);
         }
-    }
-
-    public function chunk(int $size): Collection
-    {
-        /** @var Collection $collection */
-        $collection = new static(Collection::class);
-        $chunked = array_chunk($this->container, $size);
-
-        foreach ($chunked as $chunk) {
-            $collection->append(new Collection($this->type(), $chunk));
-        }
-
-        return $collection;
-    }
-
-    public function column(\Closure $callback): Collection
-    {
-        $type = get_class(call_user_func($callback, $this->current()));
-        $collection = new Collection($type);
-        $fetched = [];
-
-        foreach ($this->container as $item) {
-            $fetched[] = call_user_func($callback, $item);
-        }
-
-        $collection->append(...$fetched);
-
-        return $collection;
     }
 
     public function map(\Closure $closure, iterable ...$collections): array
