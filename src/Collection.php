@@ -1,12 +1,12 @@
 <?php
 
-namespace kartavik\Collections;
+namespace kartavik\Support;
 
-use kartavik\Collections\Exception;
+use kartavik\Support\Exception;
 
 /**
  * Class Collection
- * @package kartavik\Collections
+ * @package kartavik\Support\
  */
 class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
 {

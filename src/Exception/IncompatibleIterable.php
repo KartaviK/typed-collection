@@ -1,12 +1,12 @@
 <?php
 
-namespace kartavik\Collections\Exception;
+namespace kartavik\Support\Exception;
 
-use kartavik\Collections\Exception;
+use kartavik\Support\Exception;
 
 /**
  * Class IncompatibleIterable
- * @package kartavik\Collections\Exception
+ * @package kartavik\Support\Exception
  */
 class IncompatibleIterable extends \InvalidArgumentException implements Exception
 {
