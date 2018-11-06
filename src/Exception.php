@@ -1,10 +1,10 @@
 <?php
 
-namespace kartavik\Collections;
+namespace kartavik\Support;
 
 /**
  * Interface Exception
- * @package kartavik\Collections
+ * @package kartavik\Support;
  *
  * Base exception interface for all exceptions in this package
  */

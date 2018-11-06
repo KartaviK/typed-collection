@@ -1,13 +1,13 @@
 <?php
 
-namespace kartavik\Collections\Tests\Exception;
+namespace kartavik\Support\Tests\Exception;
 
 use PHPUnit\Framework\TestCase;
-use kartavik\Collections\Exception\InvalidElement;
+use kartavik\Support\Exception\InvalidElement;
 
 /**
  * Class InvalidElementTest
- * @package kartavik\Collections\Tests\Exception
+ * @package kartavik\Support\Tests\Exception
  * @coversDefaultClass InvalidElement
  * @internal
  */

@@ -1,10 +1,10 @@
 <?php
 
-namespace kartavik\Collections\Tests\Mocks;
+namespace kartavik\Support\Tests\Mocks;
 
 /**
  * Class SubElement
- * @package kartavik\Collections\Tests\Mocks
+ * @package kartavik\Support\Tests\Mocks
  */
 class SubElement
 {

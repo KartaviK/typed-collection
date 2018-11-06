@@ -1,6 +1,6 @@
 {
   "name": "kartavik/typed-collection",
-  "description": "Realization of generic collection",
+  "description": "Implementation of typed collection",
   "type": "library",
   "require": {
     "php": ">=7.2"
@@ -17,19 +17,18 @@
     }
   ],
   "keywords": [
-    "designer",
     "collection",
     "generic"
   ],
   "minimum-stability": "stable",
   "autoload": {
     "psr-4": {
-      "kartavik\\Collections\\": "src/"
+      "kartavik\\Support\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "kartavik\\Collections\\Tests\\": "tests/"
+      "kartavik\\Support\\Tests\\": "tests/"
     }
   },
   "config": {

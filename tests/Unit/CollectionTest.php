@@ -1,18 +1,16 @@
 <?php
 
-namespace kartavik\Collections\Tests\Unit;
+namespace kartavik\Support\Tests\Unit;
 
-use kartavik\Collections\Collection;
-use kartavik\Collections\Exception\IncompatibleIterable;
-use kartavik\Collections\Exception\InvalidElement;
-use kartavik\Collections\Exception\UnprocessedType;
-use kartavik\Collections\Tests\Mocks\Element;
+use kartavik\Support\Collection;
+use kartavik\Support\Exception\UnprocessedType;
+use kartavik\Support\Tests\Mocks\Element;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class CollectionTest
- * @package kartavik\Collections\Tests\Unit
- * @coversDefaultClass \kartavik\Collections\Collection
+ * @package kartavik\Support\Tests\Unit
+ * @coversDefaultClass \kartavik\Support\Collection
  * @internal
  */
 class CollectionTest extends TestCase
@@ -213,7 +211,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @expectedException \kartavik\Collections\Exception\InvalidElement
+     * @expectedException \kartavik\Support\Exception\InvalidElement
      */
     public function testFailedAppend(): void
     {
@@ -444,7 +442,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @expectedException \kartavik\Collections\Exception\IncompatibleIterable
+     * @expectedException \kartavik\Support\Exception\IncompatibleIterable
      * @expectedExceptionMessage Given iterable object must contain same count elements
      */
     public function testInvalidCountMap(): void
@@ -466,7 +464,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @expectedException \kartavik\Collections\Exception\IncompatibleIterable
+     * @expectedException \kartavik\Support\Exception\IncompatibleIterable
      * @expectedExceptionMessage Given iterable object contain invalid element
      */
     public function testInvalidTypeMap(): void

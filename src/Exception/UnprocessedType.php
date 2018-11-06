@@ -1,12 +1,12 @@
 <?php
 
-namespace kartavik\Collections\Exception;
+namespace kartavik\Support\Exception;
 
-use kartavik\Collections\Exception;
+use kartavik\Support\Exception;
 
 /**
  * Class UnprocessedTypeException
- * @package kartavik\Collections\Exceptions
+ * @package kartavik\Support\Exceptions
  */
 class UnprocessedType extends \InvalidArgumentException implements Exception
 {

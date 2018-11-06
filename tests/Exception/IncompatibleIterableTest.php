@@ -1,14 +1,14 @@
 <?php
 
-namespace kartavik\Collections\Tests\Exception;
+namespace kartavik\Support\Tests\Exception;
 
-use kartavik\Collections\Exception\IncompatibleIterable;
+use kartavik\Support\Exception\IncompatibleIterable;
 
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class IncompatibleIterableTest
- * @package kartavik\Collections\Tests\Exception
+ * @package kartavik\Support\Tests\Exception
  * @coversDefaultClass IncompatibleIterable
  * @internal
  */

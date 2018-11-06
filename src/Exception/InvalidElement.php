@@ -1,12 +1,12 @@
 <?php
 
-namespace kartavik\Collections\Exception;
+namespace kartavik\Support\Exception;
 
-use kartavik\Collections\Exception;
+use kartavik\Support\Exception;
 
 /**
  * Class InvalidElementException
- * @package kartavik\Collections\Exceptions
+ * @package kartavik\Support\Exceptions
  */
 class InvalidElement extends \InvalidArgumentException implements Exception
 {
