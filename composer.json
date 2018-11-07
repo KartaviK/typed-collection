@@ -3,11 +3,11 @@
   "description": "Implementation of typed collection",
   "type": "library",
   "require": {
-    "php": ">=7.2"
+    "php": ">=7.1"
   },
   "require-dev": {
-    "phpunit/phpunit": "^7.1",
-    "squizlabs/php_codesniffer": "^3.2"
+    "phpunit/phpunit": "^7.4",
+    "squizlabs/php_codesniffer": "^3.3.2"
   },
   "license": "MIT",
   "authors": [
@@ -18,7 +18,8 @@
   ],
   "keywords": [
     "collection",
-    "generic"
+    "type",
+    "strict"
   ],
   "minimum-stability": "stable",
   "autoload": {
@@ -35,7 +36,7 @@
     "process-timeout": 1800,
     "sort-packages": true,
     "platform": {
-      "php": "7.2"
+      "php": "7.1"
     }
   },
   "scripts": {
