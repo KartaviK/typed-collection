@@ -21,88 +21,86 @@ composer require kartavik/generic-collection-php
 
 Two variant to instantiate collection:
 
-- Constructor:
+### Dynamic
+
+- internal types
 
 ```php
 <?php
 
-use kartavik\Collections\Collection;
+use kartavik\Support\Collection;
+use kartavik\Support\Strict;
 
-/** @var iterable $iterable */
-$collection = new Collection(stdClass::class, $iterable);
+$items = [1, 2, 3, 4,];
+$collection = new Collection(Strict::integer(), $items); // Return instance of typed collection
+$collection = Collection::{'integer'}($items); // Work same as constructor
 
-/** @var iterable[] $iterables */
-$collection = new Collection(stdClass::class, ...$iterables);
+// Another examples
+
+// string
+Collection::{Strict::STRING}(['str1', 'str2']);
+
+// float
+Collection::{Strict::FLOAT}([12.3, 23.5, 3., 54.321,]);
+
+// array
+Collection::{Strict::ARRAYABLE}([[1, 2], ['str1'], [123.456]]);
+
+// boolean
+Collection::{Strict::BOOLEAN}([true, false]);
+
+// object
+Collection::{Strict::OBJECT}([new stdClass(), new Exception()]);
 ```
 
-- Static call:
+- User types
+
 ```php
 <?php
 
-use kartavik\Collections\Collection;
+use kartavik\Support\Collection;
+use kartavik\Support\Strict;
 
-/** @var iterable $iterable */
-$collection = Collection::{stdClass::class}($iterable);
+// You can put name of class to static call
+// In this case collection can take only stdClass
+// It will work with any declared classes
+$collection = Collection::{stdClass::class}([]);
 
-/** @var iterable[] $iterables */
-$collection = Collection::{stdClass::class}(...$iterables);
+// you can also do it with constructor
+$collection = new Collection(Strict::object(stdClass::class), []);
+
+// Strict class also support static call for class name
+$strict = Strict::{stdClass::class}();
+$collection = new Collection($strict, []);
 ```
 
-### Use extendibility
+### Extend
 
-**UserCollection.php**:
+**StringCollection.php**:
 ```php
 <?php
 
-use kartavik\Collections\Collection;
+use kartavik\Support;
 
-class StdClassCollection extends Collection
+class StringCollection extends Support\Collection
 {
-    // your properties, constants, traits
-    
-    public function __construct(iterable ...$iterable)
+    public function __construct(array $items)
     {
-        parent::__construct(stdClass::class, ...$iterable);
+        // do something
+        
+        parent::__construct(Support\Strict::string(), $items);
     }
-    
-    // your methods
 }
 ```
 
 ## Where is strong type?
 
-I put simple logic to set methods that will check element on `instanceof` type,
-that cached in collection.
+Class [Strict](./src/Strict.php) help collection to validate type of elements;
 
-If you will try in any moment put to the collection element that is not instance of collection type
-you will get [Exception\InvalidElement](./src/Exception/InvalidElement.php)
+If you will try in any moment put to the collection element that is not of element type
+you will get [Exception\Validation](./src/Exception/Validation.php)
 
-If you will try set type that is not class than you will catch [Exception\UnprocessedType](./src/Exception/UnprocessedType.php)
-
-**Important!** this collection is only for `class` objects
-
-## Supported interfaces:
-
-- \ArrayAccess
-- \Countable
-- \IteratorAggregate
-- \JsonSerializable
-- \Serializable
-
-## Helpful methods
-
-### chunk
-
-`Collection chunk(int $size)`
-
-```php
-<?php
-
-use kartavik\Collections\Collection;
-
-$collection = new Collection(stdClass::class, [new stdClass(), new stdClass()]);
-$collection->chunk(1);
-```
+If you will try set some specific type you will catch [Exception\UnprocessedType](./src/Exception/UnprocessedType.php)
 
 ## Authors:
 - [Roman <KartaviK> Varkuta](mailto:roman.varkuta@gmail.com)
