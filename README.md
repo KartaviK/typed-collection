@@ -2,7 +2,7 @@
 
 [![Latest Stable Version](https://poser.pugx.org/kartavik/generic-collection-php/v/stable)](https://packagist.org/packages/kartavik/generic-collection-php)
 [![Total Downloads](https://poser.pugx.org/kartavik/generic-collection-php/downloads)](https://packagist.org/packages/kartavik/generic-collection-php)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/KartaviK/generic-collection-php/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/KartaviK/generic-collection-php/?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/KartaviK/typed-collection/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/KartaviK/typed-collection/?branch=master)
 [![Build Status](https://travis-ci.org/KartaviK/generic-collection-php.svg?branch=master)](https://travis-ci.org/KartaviK/generic-collection-php)
 [![codecov](https://codecov.io/gh/KartaviK/typed-collection/branch/master/graph/badge.svg)](https://codecov.io/gh/KartaviK/typed-collection)
 [![License](https://poser.pugx.org/kartavik/generic-collection-php/license)](https://github.com/KartaviK/generic-collection-php/blob/master/LICENSE)
