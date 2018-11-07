@@ -2,7 +2,7 @@
 
 namespace kartavik\Support\Method;
 
-use kartavik\Support\Collection;
+use kartavik\Support;
 
 /**
  * Trait Column
@@ -10,18 +10,22 @@ use kartavik\Support\Collection;
  */
 trait Column
 {
-    public function column(\Closure $callback): Collection
+    /**
+     * Same as map method but only with current collection
+     *
+     * @param \Closure $callback
+     *
+     * @return Support\Collection
+     * @throws Support\Exception\Validation
+     */
+    public function column(\Closure $callback): Support\Collection
     {
-        $type = get_class(call_user_func($callback, $this->current()));
-        $collection = new Collection($type);
         $fetched = [];
 
         foreach ($this->container as $item) {
             $fetched[] = call_user_func($callback, $item);
         }
 
-        $collection->append(...$fetched);
-
-        return $collection;
+        return new Support\Collection(Support\Strict::typeof(current($fetched)), $fetched);
     }
 }

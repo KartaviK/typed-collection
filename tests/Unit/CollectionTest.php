@@ -3,7 +3,7 @@
 namespace kartavik\Support\Tests\Unit;
 
 use kartavik\Support\Collection;
-use kartavik\Support\Exception\UnprocessedType;
+use kartavik\Support\Strict;
 use kartavik\Support\Tests\Mocks\Element;
 use PHPUnit\Framework\TestCase;
 
@@ -15,400 +15,21 @@ use PHPUnit\Framework\TestCase;
  */
 class CollectionTest extends TestCase
 {
-    public function testSimpleConstruct(): void
-    {
-        $collection = new Collection(Element::class);
-
-        $this->assertInstanceOf(Collection::class, $collection);
-        $this->assertEmpty($collection);
-        $this->assertEquals(new Collection(Element::class), $collection);
-        $this->assertEquals(Element::class, $collection->type());
-    }
-
-    public function testConstructWithArray(): void
-    {
-        $elements = [
-            new Element(mt_rand()),
-            new Element(mt_rand()),
-        ];
-        $collection = new Collection(Element::class, $elements);
-
-        $this->assertInstanceOf(Collection::class, $collection);
-        $this->assertCount(2, $collection);
-        $this->assertNotEquals(new Collection(Element::class), $collection);
-        $this->assertEquals(new Collection(Element::class, $elements), $collection);
-        $this->assertEquals(Element::class, $collection->type());
-    }
-
-    public function testConstructWithCollection(): void
-    {
-        $elements = [
-            new Element(mt_rand()),
-            new Element(mt_rand()),
-        ];
-        $subCollection = new Collection(Element::class, $elements);
-        $collection = new Collection(Element::class, $subCollection);
-
-        $this->assertInstanceOf(Collection::class, $collection);
-        $this->assertCount(2, $collection);
-        $this->assertNotEquals(new Collection(Element::class), $collection);
-        $this->assertEquals($subCollection, $collection);
-        $this->assertEquals(Element::class, $collection->type());
-    }
-
-    public function testStaticConstruct(): void
-    {
-        $collection = Collection::{Element::class}();
-
-        $this->assertInstanceOf(Collection::class, $collection);
-        $this->assertEmpty($collection);
-        $this->assertEquals(new Collection(Element::class), $collection);
-        $this->assertEquals(Element::class, $collection->type());
-    }
-
-    public function testStaticConstructWithArray(): void
-    {
-        $elements = [
-            new Element(mt_rand()),
-            new Element(mt_rand()),
-        ];
-        $subCollection = new Collection(Element::class, $elements);
-        $collection = Collection::{Element::class}($elements);
-
-        $this->assertInstanceOf(Collection::class, $collection);
-        $this->assertCount(2, $collection);
-        $this->assertNotEquals(new Collection(Element::class), $collection);
-        $this->assertEquals($subCollection, $collection);
-        $this->assertEquals(Element::class, $collection->type());
-    }
-
-    public function testStaticConstructWithCollection(): void
-    {
-        $elements = [
-            new Element(mt_rand()),
-            new Element(mt_rand()),
-        ];
-        $subCollection = new Collection(Element::class, $elements);
-        $collection = Collection::{Element::class}($subCollection);
-
-        $this->assertInstanceOf(Collection::class, $collection);
-        $this->assertCount(2, $collection);
-        $this->assertNotEquals(new Collection(Element::class), $collection);
-        $this->assertEquals($subCollection, $collection);
-        $this->assertEquals(Element::class, $collection->type());
-    }
-
-    public function testConstructWithInvalidType(): void
-    {
-        $this->expectException(UnprocessedType::class);
-
-        new Collection('Invalid type');
-    }
-
-    public function testStaticConstructWithInvalidType(): void
-    {
-        $this->expectException(UnprocessedType::class);
-
-        Collection::{'Invalid type'}();
-    }
-
-    public function testOffsetGet(): void
-    {
-        $elements = [
-            new Element(mt_rand()),
-            new Element(mt_rand()),
-        ];
-        $collection = new Collection(Element::class, $elements);
-
-        $this->assertCount(2, $collection);
-        $this->assertEquals($elements[0], $collection->offsetGet(0));
-        $this->assertEquals($elements[1], $collection->offsetGet(1));
-    }
-
-    public function testOffsetSet(): void
-    {
-        $elements = [new Element(mt_rand())];
-        $collection = new Collection(Element::class, $elements);
-
-        $collection->offsetSet('key', $elements[0]);
-
-        $this->assertCount(2, $collection);
-        $this->assertEquals($elements[0], $collection->offsetGet(0));
-        $this->assertEquals($elements[0], $collection->offsetGet('key'));
-    }
-
-    public function testOffsetExists(): void
-    {
-        $elements = [new Element(mt_rand())];
-        $collection = new Collection(Element::class, $elements);
-
-        $collection->offsetSet('key', $elements[0]);
-
-        $this->assertTrue($collection->offsetExists('key'));
-        $this->assertFalse($collection->offsetExists(1));
-    }
-
-    public function testOffsetUnset(): void
-    {
-        $elements = [new Element(mt_rand())];
-        $collection = new Collection(Element::class, $elements);
-
-        $collection->offsetSet('key', $elements[0]);
-
-        $this->assertTrue($collection->offsetExists('key'));
-
-        $collection->offsetUnset('key');
-
-        $this->assertFalse($collection->offsetExists('key'));
-    }
-
-    public function testGetIterator(): void
-    {
-        $elements = [new Element(mt_rand())];
-        $collection = new Collection(Element::class, $elements);
-
-        $iterator = $collection->getIterator();
-
-        $this->assertInstanceOf(\ArrayIterator::class, $iterator);
-    }
-
-    public function testFirst(): void
-    {
-        $collection = new Collection(Element::class, [
-            new Element(1),
-            new Element(2)
-        ]);
-
-        $this->assertEquals(1, $collection->first()->getValue());
-    }
-
-    public function testLast(): void
-    {
-        $collection = new Collection(Element::class, [
-            new Element(1),
-            new Element(2)
-        ]);
-
-        $this->assertEquals(2, $collection->last()->getValue());
-    }
-
-    public function testSuccessAppend(): void
-    {
-        $elements = [
-            new Element(mt_rand()),
-            new Element(mt_rand()),
-        ];
-        $collection = new Collection(Element::class);
-
-        $collection->append($elements[0]);
-
-        $this->assertInstanceOf(Element::class, $collection->first());
-
-        $collection->append(...$elements);
-
-        $this->assertInstanceOf(Element::class, $collection[1]);
-        $this->assertInstanceOf(Element::class, $collection[2]);
-    }
-
-    /**
-     * @expectedException \kartavik\Support\Exception\InvalidElement
-     */
-    public function testFailedAppend(): void
-    {
-        $elements = [
-            new Element(mt_rand()),
-            new \stdClass(),
-        ];
-        $collection = new Collection(Element::class);
-
-        $collection->append(...$elements);
-    }
-
-    public function testPop(): void
-    {
-        $collection = new Collection(\stdClass::class);
-
-        $collection->append(
-            new \stdClass(),
-            new \stdClass(),
-            new \stdClass()
-        );
-
-        $this->assertCount(3, $collection);
-
-        $poped = $collection->pop();
-
-        $this->assertEquals($poped, new \stdClass());
-        $this->assertCount(2, $collection);
-    }
-
-    public function testColumn(): void
-    {
-        $elements = [];
-
-        for ($i = 0; $i < 5; $i++) {
-            $obj = new \stdClass();
-            $obj->value = new Element($i);
-            $elements[] = $obj;
-        }
-
-        $collection = new Collection(\stdClass::class, $elements);
-
-        $this->assertEquals(
-            new Collection(Element::class, [
-                new Element(0),
-                new Element(1),
-                new Element(2),
-                new Element(3),
-                new Element(4),
-            ]),
-            $collection->column(function (\stdClass $obj): Element {
-                return $obj->value;
-            })
-        );
-    }
-
-    public function testCount(): void
-    {
-        $collection = new Collection(\stdClass::class);
-
-        $collection->append(
-            new \stdClass(),
-            new \stdClass(),
-            new \stdClass()
-        );
-
-        $this->assertCount(3, $collection);
-        $this->assertEquals(3, $collection->count());
-    }
-
-    public function testChunk(): void
-    {
-        $elements = [
-            new \stdClass(),
-            new \stdClass(),
-            new \stdClass(),
-            new \stdClass(),
-            new \stdClass(),
-        ];
-
-        $collection = new Collection(\stdClass::class, $elements);
-        $this->assertEquals(
-            new Collection(Collection::class, [
-                new Collection(\stdClass::class, [
-                    new \stdClass(),
-                    new \stdClass(),
-                ]),
-                new Collection(\stdClass::class, [
-                    new \stdClass(),
-                    new \stdClass(),
-                ]),
-                new Collection(\stdClass::class, [
-                    new \stdClass(),
-                ]),
-            ]),
-            $collection->chunk(2)
-        );
-    }
-
-    public function testSum(): void
-    {
-        $elements = [
-            new Element(1),
-            new Element(2),
-            new Element(3),
-        ];
-
-        $collection = new Collection(Element::class, $elements);
-        $expectedValue = 6;
-        $actualValue = $collection->sum(function (Element $element): int {
-            return $element->getValue();
-        });
-
-        $this->assertEquals($expectedValue, $actualValue);
-    }
-
-    public function testSuccessIsCompatible(): void
-    {
-        $array = [
-            new \stdClass(),
-            new \stdClass(),
-            new \stdClass(),
-        ];
-        $arrayObject = new \ArrayObject([
-            new \stdClass(),
-            new \stdClass(),
-            new \stdClass(),
-        ]);
-        $arrayCollection = new Collection(\stdClass::class, [
-            new \stdClass(),
-            new \stdClass(),
-            new \stdClass(),
-        ]);
-
-        $collection = new Collection(\stdClass::class);
-
-        $this->assertTrue($collection->isCompatible($array));
-        $this->assertTrue($collection->isCompatible($arrayObject));
-        $this->assertTrue($collection->isCompatible($arrayCollection));
-    }
-
-    public function testFailedIsCompatible(): void
-    {
-        $array = [
-            new \stdClass(),
-            new \stdClass(),
-            new Element(1)
-        ];
-        $arrayObject = new \ArrayObject([
-            new \stdClass(),
-            new \stdClass(),
-            new Element(1)
-        ]);
-        $arrayCollection = new Collection(Element::class, [
-            new Element(1),
-            new Element(1),
-            new Element(1)
-        ]);
-
-        $collection = new Collection(\stdClass::class);
-
-        $this->assertFalse($collection->isCompatible($array));
-        $this->assertFalse($collection->isCompatible($arrayObject));
-        $this->assertFalse($collection->isCompatible($arrayCollection));
-    }
-
-    public function testJsonSerialize(): void
-    {
-        $array = [
-            new \stdClass(),
-            new \stdClass(),
-            new \stdClass(),
-        ];
-
-        $collection = new Collection(\stdClass::class, $array);
-
-        $this->assertArraySubset(
-            [
-                'type' => \stdClass::class,
-                'container' => $array,
-            ],
-            $collection->jsonSerialize()
-        );
-    }
-
     public function testSuccessMap(): void
     {
+        $this->markTestIncomplete('Deprecated test');
+
         $elements = [
             new Element(1),
             new Element(2),
             new Element(3),
         ];
 
+        /** @noinspection PhpUnhandledExceptionInspection */
         $collections = [
-            new Collection(Element::class, $elements),
-            new Collection(Element::class, $elements),
-            new Collection(Element::class, $elements),
+            new Collection(Strict::{Element::class}(), $elements),
+            new Collection(Strict::{Element::class}(), $elements),
+            new Collection(Strict::{Element::class}(), $elements),
         ];
 
         $mapped = $collections[0]->map(function (Element $first, Element $second, Element $third): array {
@@ -447,6 +68,8 @@ class CollectionTest extends TestCase
      */
     public function testInvalidCountMap(): void
     {
+        $this->markTestIncomplete('Deprecated test');
+
         $first = [
             new Element(1),
             new Element(2),
@@ -456,7 +79,8 @@ class CollectionTest extends TestCase
             new Element(1),
             new Element(2),
         ];
-        $collection = new Collection(Element::class, $first);
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $collection = new Collection(Strict::{Element::class}(), $first);
 
         $collection->map(function (Element $element): int {
             return $element->getValue();
@@ -469,6 +93,8 @@ class CollectionTest extends TestCase
      */
     public function testInvalidTypeMap(): void
     {
+        $this->markTestIncomplete('Deprecated test');
+
         $first = [
             new Element(1),
             new Element(2),
@@ -477,46 +103,11 @@ class CollectionTest extends TestCase
             new Element(1),
             new \stdClass(),
         ];
-        $collection = new Collection(Element::class, $first);
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $collection = new Collection(Strict::{Element::class}(), $first);
 
         $collection->map(function (Element $element): int {
             return $element->getValue();
         }, $second);
-    }
-
-    public function testReverse(): void
-    {
-        $elements = [
-            'first' => new \stdClass(),
-            new \stdClass(),
-            'third' => new \stdClass(),
-            new \stdClass(),
-        ];
-
-        $collection = new Collection(\stdClass::class, $elements);
-        $collection = $collection->reverse();
-
-        $this->assertEquals(
-            new Collection(\stdClass::class, [
-                0 => new \stdClass(),
-                'third' => new \stdClass(),
-                1 => new \stdClass(),
-                'first' => new \stdClass(),
-            ]),
-            $collection
-        );
-
-        $collection = new Collection(\stdClass::class, $elements);
-        $collection = $collection->reverse(true);
-
-        $this->assertEquals(
-            new Collection(\stdClass::class, [
-                1 => new \stdClass(),
-                'third' => new \stdClass(),
-                0 => new \stdClass(),
-                'first' => new \stdClass(),
-            ]),
-            $collection
-        );
     }
 }
