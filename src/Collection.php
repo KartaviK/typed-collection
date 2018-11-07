@@ -134,8 +134,6 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     }
 
     /**
-     * Same as map method but only with current collection
-     *
      * @param \Closure $callback
      *
      * @return Collection
@@ -197,8 +195,8 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     }
 
     /**
-     * @param $item
-     * @param null $index
+     * @param mixed $item
+     * @param mixed $index
      *
      * @throws Exception\Validation
      */
