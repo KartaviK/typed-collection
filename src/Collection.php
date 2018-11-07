@@ -2,40 +2,40 @@
 
 namespace kartavik\Support;
 
-use kartavik\Support\Method;
-
 /**
  * Class Collection
  * @package kartavik\Support\
  */
 class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
 {
-    use Method\Append,
-        Method\Chunk,
-        Method\Column;
-
-    /** @var string */
-    private $type = null;
+    /** @var Strict */
+    private $strict = null;
 
     /** @var array */
     protected $container = [];
 
-    public function __construct(string $type, iterable ...$iterables)
+    /**
+     * Collection constructor.
+     *
+     * @param Strict $type
+     * @param iterable ...$iterables
+     *
+     * @throws Exception\Validation
+     */
+    public function __construct(Strict $type, iterable ...$iterables)
     {
-        static::validateObject($type);
-
-        $this->type = $type;
+        $this->strict = $type;
 
         foreach ($iterables as $iterable) {
             foreach ($iterable as $index => $item) {
-                $this->add($item, $index);
+                $this->append($item);
             }
         }
     }
 
-    final public function type(): string
+    final public function type(): Strict
     {
-        return $this->type;
+        return $this->strict;
     }
 
     public function offsetExists($offset): bool
@@ -43,16 +43,14 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return isset($this->container[$offset]);
     }
 
-    public function offsetGet($offset): object
+    public function offsetGet($offset)
     {
         return $this->container[$offset];
     }
 
     public function offsetUnset($offset): void
     {
-        if ($this->offsetExists($offset)) {
-            unset($this->container[$offset]);
-        }
+        unset($this->container[$offset]);
     }
 
     public function getIterator(): \ArrayIterator
@@ -64,7 +62,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      * @param mixed $index
      * @param mixed $value
      *
-     * @throws Exception\InvalidElement
+     * @throws Exception\Validation
      */
     public function offsetSet($index, $value): void
     {
@@ -73,7 +71,22 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
 
     public function jsonSerialize(): array
     {
-        return get_object_vars($this);
+        return $this->container;
+    }
+
+    /**
+     * @param mixed ...$var
+     *
+     * @return Collection
+     * @throws Exception\Validation
+     */
+    public function append(...$var): Collection
+    {
+        foreach ($var as $item) {
+            $this->add($item);
+        }
+
+        return $this;
     }
 
     public function isCompatible(iterable $collection): bool
@@ -82,21 +95,21 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
             foreach ($collection as $item) {
                 $this->validate($item);
             }
-        } catch (Exception\InvalidElement $exception) {
+        } catch (Exception\Validation $exception) {
             return false;
         }
 
         return true;
     }
 
-    public function first(): object
+    public function first()
     {
         reset($this->container);
 
         return $this->current();
     }
 
-    public function last(): object
+    public function last()
     {
         end($this->container);
 
@@ -104,65 +117,65 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     }
 
     /**
-     * @param object $item
+     * @param mixed $item
      *
-     * @throws Exception\InvalidElement
+     * @throws Exception\Validation
      */
-    public function validate(object $item): void
+    public function validate($item): void
     {
-        $type = $this->type();
-
-        if (!$item instanceof $type) {
-            throw new Exception\InvalidElement($item, $type);
-        }
+        $this->type()->validate($item);
     }
 
-    public function map(\Closure $closure, iterable ...$collections): array
+    public function chunk(int $size): Collection
     {
-        $result = [];
-        $count = $this->count();
-        $values[] = array_values($this->container);
-
-        foreach ($collections as $index => $collection) {
-            if (!$this->isCompatible($collection)) {
-                throw new Exception\IncompatibleIterable($collection, 'Given iterable object contain invalid element');
-            }
-
-            if ($count !== count($collection)) {
-                throw new Exception\IncompatibleIterable(
-                    $collection,
-                    'Given iterable object must contain same count elements'
-                );
-            }
-
-            foreach ($collection as $item) {
-                $values[$index + 1][] = $item;
-            }
-        }
-
-        foreach (range(0, $this->count() - 1) as $index) {
-            $result[] = call_user_func(
-                $closure,
-                ...array_map(function (array $collection) use ($index) {
-                    return $collection[$index];
-                }, $values)
-            );
-        }
-
-        return $result;
+        return Collection::{Collection::class}(array_map(function ($chunk) {
+            return new Collection($this->type(), $chunk);
+        }, array_chunk($this->container, $size)));
     }
 
+    /**
+     * Same as map method but only with current collection
+     *
+     * @param \Closure $callback
+     *
+     * @return Collection
+     * @throws Exception\Validation
+     */
+    public function map(\Closure $callback): Collection
+    {
+        $fetched = [];
+
+        foreach ($this->container as $item) {
+            $fetched[] = call_user_func($callback, $item);
+        }
+
+        return new Collection(Strict::typeof(current($fetched)), $fetched);
+    }
+
+    /**
+     * @param bool $preserveKeys
+     *
+     * @return Collection
+     * @throws Exception\Validation
+     */
     public function reverse(bool $preserveKeys = false): Collection
     {
-        return new static($this->type(), array_reverse($this->container, $preserveKeys));
+        /** @var Collection $collection */
+        $collection = static::{$this->strict->t()}();
+
+        foreach (array_reverse($this->container, $preserveKeys) as $index => $item) {
+            $collection->add($item, $index);
+        }
+
+        return $collection;
     }
-    
+
     public function current()
     {
         return current($this->container);
     }
 
-    public function pop(): object
+    public function pop()
     {
         return array_pop($this->container);
     }
@@ -183,6 +196,12 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return count($this->container);
     }
 
+    /**
+     * @param $item
+     * @param null $index
+     *
+     * @throws Exception\Validation
+     */
     public function add($item, $index = null): void
     {
         $this->validate($item);
@@ -194,28 +213,10 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      * @param array $arguments
      *
      * @return Collection
+     * @throws Exception\Validation
      */
     public static function __callStatic(string $name, array $arguments = [])
     {
-        if (!empty($arguments) && is_array($arguments[0])) {
-            $arguments = $arguments[0];
-        }
-
-        static::validateObject($name);
-
-        reset($arguments);
-
-        if (current($arguments) instanceof Collection) {
-            return new static($name, ...$arguments);
-        } else {
-            return new static($name, $arguments);
-        }
-    }
-
-    protected static function validateObject(string $type): void
-    {
-        if (!class_exists($type)) {
-            throw new Exception\UnprocessedType($type);
-        }
+        return new static(Strict::{$name}(), ...$arguments);
     }
 }
