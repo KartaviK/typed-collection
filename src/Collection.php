@@ -2,16 +2,12 @@
 
 namespace kartavik\Support;
 
-use kartavik\Support\Method;
-
 /**
  * Class Collection
  * @package kartavik\Support\
  */
 class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
 {
-    use Method\Column;
-
     /** @var Strict */
     private $strict = null;
 
@@ -137,39 +133,23 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         }, array_chunk($this->container, $size)));
     }
 
-    public function map(\Closure $closure, iterable ...$collections): array
+    /**
+     * Same as map method but only with current collection
+     *
+     * @param \Closure $callback
+     *
+     * @return Collection
+     * @throws Exception\Validation
+     */
+    public function map(\Closure $callback): Collection
     {
-        $result = [];
-        $count = $this->count();
-        $values[] = array_values($this->container);
+        $fetched = [];
 
-        foreach ($collections as $index => $collection) {
-            if (!$this->isCompatible($collection)) {
-                throw new Exception\IncompatibleIterable($collection, 'Given iterable object contain invalid element');
-            }
-
-            if ($count !== count($collection)) {
-                throw new Exception\IncompatibleIterable(
-                    $collection,
-                    'Given iterable object must contain same count elements'
-                );
-            }
-
-            foreach ($collection as $item) {
-                $values[$index + 1][] = $item;
-            }
+        foreach ($this->container as $item) {
+            $fetched[] = call_user_func($callback, $item);
         }
 
-        foreach (range(0, $this->count() - 1) as $index) {
-            $result[] = call_user_func(
-                $closure,
-                ...array_map(function (array $collection) use ($index) {
-                    return $collection[$index];
-                }, $values)
-            );
-        }
-
-        return $result;
+        return new Collection(Strict::typeof(current($fetched)), $fetched);
     }
 
     /**

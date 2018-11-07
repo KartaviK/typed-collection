@@ -361,7 +361,7 @@ class CollectionTestCase extends TestCase
             return Strict::typeof($item);
         };
         /** @noinspection PhpUnhandledExceptionInspection */
-        $strictCollection = $collection->column($fetchTypeCallback);
+        $strictCollection = $collection->map($fetchTypeCallback);
 
         $this->assertArraySubset(
             array_map($fetchTypeCallback, array_merge(...$items)),
