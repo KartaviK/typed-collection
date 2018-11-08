@@ -358,7 +358,7 @@ class CollectionTestCase extends TestCase
         ];
         $collection = $this->createCollection(...$items);
         $fetchTypeCallback = function ($item) {
-            return Strict::strictof($item);
+            return Strict::typeof($item);
         };
         /** @noinspection PhpUnhandledExceptionInspection */
         $strictCollection = $collection->map($fetchTypeCallback);

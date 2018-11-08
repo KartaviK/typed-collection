@@ -8,16 +8,8 @@ use kartavik\Support\Exception\UnprocessedType;
  * Class Strict
  * @package kartavik\Support
  */
-class Strict
+class Strict implements StrictInterface
 {
-    public const STRING = 'string';
-    public const INTEGER = 'integer';
-    public const FLOAT = 'float';
-    public const ARRAYABLE = 'arrayable';
-    public const BOOLEAN = 'boolean';
-    public const RESOURCE = 'resource';
-    public const OBJECT = 'object';
-
     /** @var string */
     private $type;
 
@@ -34,81 +26,70 @@ class Strict
     /**
      * @param mixed $var
      *
-     * @throws Exception\Validation
+     * @return bool
      */
-    public function validate($var): void
+    public function validate($var): bool
     {
         switch ($this->type) {
             case static::STRING:
-                $validated = is_string($var);
-                break;
+                return is_string($var);
             case static::INTEGER:
-                $validated = is_int($var);
-                break;
+                return is_int($var);
             case static::FLOAT:
-                $validated = is_float($var);
-                break;
+                return is_float($var);
             case static::ARRAYABLE:
-                $validated = is_array($var);
-                break;
+                return is_array($var);
             case static::BOOLEAN:
-                $validated = is_bool($var);
-                break;
+                return is_bool($var);
             case static::RESOURCE:
-                $validated = is_resource($var);
-                break;
+                return is_resource($var);
             case static::OBJECT:
-                $validated = is_object($var);
-                break;
+                return is_object($var);
             default:
-                $validated = $var instanceof $this->type;
-        }
-
-        if (!$validated) {
-            throw new Exception\Validation($var);
+                return $var instanceof $this->type;
         }
     }
 
-    public static function string(): Strict
+    public static function string(): StrictInterface
     {
-        return new Strict(static::STRING);
+        return new static(static::STRING);
     }
 
-    public static function integer(): Strict
+    public static function integer(): StrictInterface
     {
-        return new Strict(static::INTEGER);
+        return new static(static::INTEGER);
     }
 
-    public static function float(): Strict
+    public static function float(): StrictInterface
     {
-        return new Strict(static::FLOAT);
+        return new static(static::FLOAT);
     }
 
-    public static function arrayable(): Strict
+    public static function arrayable(): StrictInterface
     {
-        return new Strict(static::ARRAYABLE);
+        return new static(static::ARRAYABLE);
     }
 
-    public static function boolean(): Strict
+    public static function boolean(): StrictInterface
     {
-        return new Strict(static::BOOLEAN);
+        return new static(static::BOOLEAN);
     }
 
-    public static function resource(): Strict
+    public static function resource(): StrictInterface
     {
-        return new Strict(static::RESOURCE);
+        return new static(static::RESOURCE);
     }
 
-    public static function object(string $className = self::OBJECT): Strict
+    public static function object(string $className = self::OBJECT): StrictInterface
     {
         if ($className === static::OBJECT || class_exists($className)) {
-            return new Strict($className);
+            return new static($className);
         }
 
         throw new Exception\UnprocessedType($className);
     }
 
-    public static function strictof($var): Strict
+    public static function typeof($var): StrictInterface
     {
         switch (true) {
             case is_string($var):
