@@ -147,7 +147,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
             $fetched[] = call_user_func($callback, $item);
         }
 
-        return new Collection(Strict::typeof(current($fetched)), $fetched);
+        return new Collection(Strict::strictof(current($fetched)), $fetched);
     }
 
     /**
@@ -159,7 +159,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     public function reverse(bool $preserveKeys = false): Collection
     {
         /** @var Collection $collection */
-        $collection = static::{$this->strict->t()}();
+        $collection = static::{$this->strict->type()}();
 
         foreach (array_reverse($this->container, $preserveKeys) as $index => $item) {
             $collection->add($item, $index);

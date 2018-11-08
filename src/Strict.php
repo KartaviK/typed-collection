@@ -2,11 +2,13 @@
 
 namespace kartavik\Support;
 
+use kartavik\Support\Exception\UnprocessedType;
+
 /**
  * Class Strict
  * @package kartavik\Support
  */
-final class Strict
+class Strict
 {
     public const STRING = 'string';
     public const INTEGER = 'integer';
@@ -19,27 +21,14 @@ final class Strict
     /** @var string */
     private $type;
 
-    private function __construct(string $type)
+    protected function __construct(string $type)
     {
         $this->type = $type;
     }
 
-    public function t(): string
+    final public function type(): string
     {
         return $this->type;
-    }
-
-    public static function availableTypes(): array
-    {
-        return [
-            static::RESOURCE,
-            static::BOOLEAN,
-            static::ARRAYABLE,
-            static::FLOAT,
-            static::INTEGER,
-            static::OBJECT,
-            static::STRING
-        ];
     }
 
     /**
@@ -119,40 +108,31 @@ final class Strict
         throw new Exception\UnprocessedType($className);
     }
 
-    public static function typeof($var): Strict
+    public static function strictof($var): Strict
     {
-        $strict = null;
-
         switch (true) {
             case is_string($var):
-                $strict = Strict::string();
-                break;
+                return Strict::string();
             case is_int($var):
-                $strict = Strict::integer();
-                break;
+                return Strict::integer();
             case is_float($var):
-                $strict = Strict::float();
-                break;
+                return Strict::float();
             case is_array($var):
-                $strict = Strict::arrayable();
-                break;
+                return Strict::arrayable();
             case is_resource($var):
-                $strict = Strict::resource();
-                break;
+                return Strict::resource();
             case is_bool($var):
-                $strict = Strict::boolean();
-                break;
+                return Strict::boolean();
             case is_object($var):
-                $strict = Strict::object(get_class($var));
-                break;
+                return Strict::object(get_class($var));
+            default:
+                throw new UnprocessedType(gettype($var));
         }
-
-        return $strict;
     }
 
     /**
-     * @param $name
-     * @param $arguments
+     * @param string $name
+     * @param array $arguments
      *
      * @return mixed
      */
