@@ -147,8 +147,6 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     }
 
     /**
-     * Same as map method but only with current collection
-     *
      * @param \Closure $callback
      *
      * @return Collection
