@@ -2,11 +2,13 @@
 
 namespace kartavik\Support\Exception;
 
+use kartavik\Support\Exception;
+
 /**
  * Class Validation
  * @package kartavik\Support\Exception
  */
-class Validation extends \Exception
+class Validation extends \RuntimeException implements Exception
 {
     protected $var;
 
