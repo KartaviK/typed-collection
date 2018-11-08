@@ -8,7 +8,7 @@ namespace kartavik\Support;
  */
 class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
 {
-    /** @var Strict */
+    /** @var StrictInterface */
     private $strict = null;
 
     /** @var array */
@@ -17,12 +17,12 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     /**
      * Collection constructor.
      *
-     * @param Strict $type
+     * @param StrictInterface $type
      * @param iterable ...$iterables
      *
      * @throws Exception\Validation
      */
-    public function __construct(Strict $type, iterable ...$iterables)
+    public function __construct(StrictInterface $type, iterable ...$iterables)
     {
         $this->strict = $type;
 
@@ -33,7 +33,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         }
     }
 
-    final public function type(): Strict
+    final public function type(): StrictInterface
     {
         return $this->strict;
     }
@@ -136,7 +136,9 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      */
     public function validate($item): void
     {
-        $this->type()->validate($item);
+        if (!$this->type()->validate($item)) {
+            throw new Exception\Validation($item);
+        }
     }
 
     public function chunk(int $size): Collection
@@ -160,7 +162,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
             $fetched[] = call_user_func($callback, $item);
         }
 
-        return new Collection(Strict::strictof(current($fetched)), $fetched);
+        return new Collection(Strict::typeof(current($fetched)), $fetched);
     }
 
     /**

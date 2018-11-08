@@ -18,69 +18,94 @@ class StrictTest extends TestCase
 
     public function testValidateBoolean(): void
     {
-        /** @noinspection PhpUnhandledExceptionInspection */
-        Support\Strict::boolean()->validate((bool)mt_rand());
+        $strict = Support\Strict::boolean();
 
-        $this->assertTrue(true);
+        $this->assertTrue(
+            $strict->validate((bool)mt_rand())
+        );
+        $this->assertFalse(
+            $strict->validate(mt_rand())
+        );
     }
 
     public function testValidateString(): void
     {
-        /** @noinspection PhpUnhandledExceptionInspection */
-        Support\Strict::string()->validate((string)'random_string');
-        /** @noinspection PhpUnhandledExceptionInspection */
-        Support\Strict::string()->validate((string)''); // even empty string
+        $strict = Support\Strict::string();
 
-        $this->assertTrue(true);
+        $this->assertTrue(
+            $strict->validate('random_string')
+        );
+        $this->assertFalse(
+            $strict->validate(mt_rand())
+        );
     }
 
     public function testValidateInteger(): void
     {
-        /** @noinspection PhpUnhandledExceptionInspection */
-        Support\Strict::integer()->validate((int)mt_rand());
+        $strict =Support\Strict::integer();
 
-        $this->assertTrue(true);
+        $this->assertTrue(
+            $strict->validate(mt_rand())
+        );
+        $this->assertFalse(
+            $strict->validate(true)
+        );
     }
 
     public function testValidateFloat(): void
     {
-        /** @noinspection PhpUnhandledExceptionInspection */
-        Support\Strict::float()->validate((float)mt_rand());
+        $strict = Support\Strict::float();
 
-        $this->assertTrue(true);
+        $this->assertTrue(
+            $strict->validate((float)mt_rand())
+        );
+        $this->assertFalse(
+            $strict->validate(new \stdClass())
+        );
     }
 
     public function testValidateArray(): void
     {
-        /** @noinspection PhpUnhandledExceptionInspection */
-        Support\Strict::arrayable()->validate([(int)mt_rand(), (string)'test_string', (float)mt_rand()]);
+        $strict = Support\Strict::arrayable();
 
-        $this->assertTrue(true);
+        $this->assertTrue(
+            $strict->validate(range(0, 10))
+        );
+        $this->assertFalse(
+            $strict->validate('str')
+        );
     }
 
     public function testValidateAnyObject(): void
     {
-        /** @noinspection PhpUnhandledExceptionInspection */
-        Support\Strict::object()->validate(new \stdClass());
-        /** @noinspection PhpUnhandledExceptionInspection */
-        Support\Strict::object()->validate(new Support\Tests\Mocks\Element(mt_rand()));
-        /** @noinspection PhpUnhandledExceptionInspection */
-        Support\Strict::object()->validate(new class
-        {
-        });
-
-        $this->assertTrue(true);
+        $this->assertTrue(
+            Support\Strict::object()
+                ->validate(new \stdClass())
+        );
+        $this->assertTrue(
+            Support\Strict::object()
+                ->validate(new Support\Tests\Mocks\Element(mt_rand()))
+        );
+        $this->assertTrue(
+            Support\Strict::object()
+                ->validate(
+                    new class
+                    {
+                    }
+                )
+        );
     }
 
     public function testValidateConcreteObject(): void
     {
-        /** @noinspection PhpUnhandledExceptionInspection */
-        Support\Strict::object(\stdClass::class)->validate(new \stdClass());
-
-        $this->expectException(Support\Exception\Validation::class);
-
-        /** @noinspection PhpUnhandledExceptionInspection */
-        Support\Strict::object(\stdClass::class)->validate(new Support\Tests\Mocks\Element(mt_rand()));
+        $this->assertTrue(
+            Support\Strict::object(\stdClass::class)
+                ->validate(new \stdClass())
+        );
+        $this->assertFalse(
+            Support\Strict::object(\stdClass::class)
+                ->validate(new Support\Tests\Mocks\Element(mt_rand()))
+        );
     }
 
     public function testFloat(): void
@@ -133,12 +158,12 @@ class StrictTest extends TestCase
 
     public function testTypeof(): void
     {
-        $this->assertEquals(Support\Strict::string(), Support\Strict::strictof('test_str'));
-        $this->assertEquals(Support\Strict::float(), Support\Strict::strictof(123.456));
-        $this->assertEquals(Support\Strict::integer(), Support\Strict::strictof(123456));
-        $this->assertEquals(Support\Strict::boolean(), Support\Strict::strictof(true));
-        $this->assertEquals(Support\Strict::boolean(), Support\Strict::strictof(false));
-        $this->assertEquals(Support\Strict::object(\stdClass::class), Support\Strict::strictof(new \stdClass()));
-        $this->assertEquals(Support\Strict::arrayable(), Support\Strict::strictof([1, 'asd', 123.456]));
+        $this->assertEquals(Support\Strict::string(), Support\Strict::typeof('test_str'));
+        $this->assertEquals(Support\Strict::float(), Support\Strict::typeof(123.456));
+        $this->assertEquals(Support\Strict::integer(), Support\Strict::typeof(123456));
+        $this->assertEquals(Support\Strict::boolean(), Support\Strict::typeof(true));
+        $this->assertEquals(Support\Strict::boolean(), Support\Strict::typeof(false));
+        $this->assertEquals(Support\Strict::object(\stdClass::class), Support\Strict::typeof(new \stdClass()));
+        $this->assertEquals(Support\Strict::arrayable(), Support\Strict::typeof([1, 'asd', 123.456]));
     }
 }
