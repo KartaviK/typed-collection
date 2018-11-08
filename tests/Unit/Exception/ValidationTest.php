@@ -1,13 +1,13 @@
 <?php
 
-namespace kartavik\Support\Tests\Exception;
+namespace kartavik\Support\Tests\Unit\Exception;
 
-use PHPUnit\Framework\TestCase;
 use kartavik\Support\Exception\Validation;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ValidationTest
- * @package kartavik\Support\Tests\Exception
+ * @package kartavik\Support\Tests\Unit\Exception
  * @coversDefaultClass Validation
  * @internal
  */
