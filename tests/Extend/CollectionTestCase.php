@@ -66,10 +66,10 @@ class CollectionTestCase extends TestCase
             ]
         ];
 
-        $this->assertInstanceOf(Collection::class, Collection::{$this->strict->t()}());
-        $this->assertInstanceOf(Collection::class, Collection::{$this->strict->t()}($items[0]));
-        $this->assertInstanceOf(Collection::class, Collection::{$this->strict->t()}($items[1], $items[2]));
-        $this->assertInstanceOf(Collection::class, Collection::{$this->strict->t()}(...$items));
+        $this->assertInstanceOf(Collection::class, Collection::{$this->strict->type()}());
+        $this->assertInstanceOf(Collection::class, Collection::{$this->strict->type()}($items[0]));
+        $this->assertInstanceOf(Collection::class, Collection::{$this->strict->type()}($items[1], $items[2]));
+        $this->assertInstanceOf(Collection::class, Collection::{$this->strict->type()}(...$items));
     }
 
     public function testCount(): void
@@ -183,12 +183,12 @@ class CollectionTestCase extends TestCase
 
     /**
      * @expectedException \kartavik\Support\Exception\UnprocessedType
-     * @expectedExceptionMessage Type must be declared class
+     * @expectedExceptionMessage Given type is: SomeInvalidType
      */
     public function testInvalidType(): void
     {
         /** @noinspection PhpUnhandledExceptionInspection */
-        new Collection(Strict::object('invalid object'));
+        new Collection(Strict::object('SomeInvalidType'));
     }
 
     public function testAppend(): void
@@ -358,7 +358,7 @@ class CollectionTestCase extends TestCase
         ];
         $collection = $this->createCollection(...$items);
         $fetchTypeCallback = function ($item) {
-            return Strict::typeof($item);
+            return Strict::strictof($item);
         };
         /** @noinspection PhpUnhandledExceptionInspection */
         $strictCollection = $collection->map($fetchTypeCallback);

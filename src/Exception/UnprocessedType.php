@@ -20,7 +20,7 @@ class UnprocessedType extends \InvalidArgumentException implements Exception
     ) {
         $this->type = $type;
 
-        parent::__construct("Type must be declared class", $code, $previous);
+        parent::__construct("Given type is: " . $type ?? 'null', $code, $previous);
     }
 
     public function getType(): ?string
