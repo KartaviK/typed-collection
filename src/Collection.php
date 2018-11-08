@@ -38,16 +38,29 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return $this->strict;
     }
 
+    /**
+     * @param string|int $offset
+     *
+     * @return bool
+     */
     public function offsetExists($offset): bool
     {
         return isset($this->container[$offset]);
     }
 
+    /**
+     * @param string|int $offset
+     *
+     * @return mixed
+     */
     public function offsetGet($offset)
     {
         return $this->container[$offset];
     }
 
+    /**
+     * @param string|int $offset
+     */
     public function offsetUnset($offset): void
     {
         unset($this->container[$offset]);
@@ -59,7 +72,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     }
 
     /**
-     * @param mixed $index
+     * @param string|int $index
      * @param mixed $value
      *
      * @throws Exception\Validation
@@ -196,7 +209,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
 
     /**
      * @param mixed $item
-     * @param mixed $index
+     * @param string|int|null $index
      *
      * @throws Exception\Validation
      */
