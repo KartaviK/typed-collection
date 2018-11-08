@@ -1,13 +1,13 @@
 <?php
 
-namespace kartavik\Support\Tests\Exception;
+namespace kartavik\Support\Tests\Unit\Exception;
 
 use kartavik\Support\Exception\UnprocessedType;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class UnprocessedTypeTest
- * @package kartavik\Support\Tests\Exception
+ * @package kartavik\Support\Tests\Unit\Exception
  * @coversDefaultClass UnprocessedType
  * @internal
  */
